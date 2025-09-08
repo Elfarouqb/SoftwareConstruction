@@ -1,0 +1,45 @@
+backend/src/MobyPark.Infrastructure/
+│
+├── Data/
+│   ├── MobyParkDbContext.cs             # Entity Framework DbContext
+│   │   public class MobyParkDbContext : DbContext
+│   │   {
+│   │       public DbSet<User> Users { get; set; }
+│   │       public DbSet<ParkingLocation> ParkingLocations { get; set; }
+│   │       public DbSet<ParkingSession> ParkingSessions { get; set; }
+│   │       public DbSet<Payment> Payments { get; set; }
+│   │       public DbSet<Vehicle> Vehicles { get; set; }
+│   │       public DbSet<Reservation> Reservations { get; set; }
+│   │   }
+│   │
+│   ├── Configurations/                   # EF Core Configurations
+│   │   ├── UserConfiguration.cs
+│   │   ├── ParkingLocationConfiguration.cs
+│   │   └── SessionConfiguration.cs
+│   │
+│   └── Migrations/                       # Database Migrations
+│       ├── 001_InitialDatabase.cs
+│       └── 002_AddReservations.cs
+│
+├── Repositories/                          # Repository Pattern
+│   ├── Interfaces/
+│   │   ├── IUserRepository.cs
+│   │   ├── IParkingLocationRepository.cs
+│   │   ├── ISessionRepository.cs
+│   │   └── IPaymentRepository.cs
+│   │
+│   ├── UserRepository.cs
+│   ├── ParkingLocationRepository.cs
+│   ├── SessionRepository.cs
+│   └── PaymentRepository.cs
+│
+├── Services/                              # External Services
+│   ├── EmailService.cs                   # Email sending
+│   ├── SmsService.cs                     # SMS notifications
+│   ├── PaymentGateway.cs                # Payment provider integration
+│   └── CacheService.cs                   # Redis caching
+│
+└── Security/                              # Security
+    ├── JwtTokenService.cs                # JWT token generation
+    ├── PasswordHasher.cs                 # BCrypt password hashing
+    └── EncryptionService.cs              # Data encryption

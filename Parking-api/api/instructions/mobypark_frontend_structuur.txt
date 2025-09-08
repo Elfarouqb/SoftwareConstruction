@@ -1,0 +1,35 @@
+MobyPark-Frontend?> /
+│
+├── frontend/                               # Frontend Applicaties
+│   ├── admin-portal/                      # Admin Portal voor Werknemers
+│   │   ├── src/
+│   │   │   ├── pages/
+│   │   │   │   ├── Dashboard/
+│   │   │   │   ├── UserManagement/
+│   │   │   │   ├── ParkingLocations/
+│   │   │   │   ├── Sessions/
+│   │   │   │   ├── Payments/
+│   │   │   │   ├── Reports/
+│   │   │   │   └── Settings/
+│   │   │   ├── components/
+│   │   │   ├── hooks/
+│   │   │   ├── services/
+│   │   │   └── store/
+│   │   ├── vite.config.ts
+│   │   └── package.json
+│   │
+│   └── mobile-app/                        # Mobiele App voor Klanten
+│       ├── src/
+│       │   ├── screens/
+│       │   │   ├── Authentication/
+│       │   │   ├── Home/
+│       │   │   ├── Parking/
+│       │   │   ├── Payment/
+│       │   │   ├── History/
+│       │   │   └── Profile/
+│       │   ├── components/
+│       │   ├── navigation/
+│       │   └── services/
+│       └── package.json
+│
+└── [overige folders...]

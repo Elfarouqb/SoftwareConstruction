@@ -1,0 +1,21 @@
+backend/src/MobyPark.Common/
+│
+├── Constants/                             # Constants
+│   ├── ApiRoutes.cs
+│   ├── ErrorMessages.cs
+│   └── ValidationMessages.cs
+│
+├── Extensions/                            # Extension Methods
+│   ├── StringExtensions.cs
+│   ├── DateTimeExtensions.cs
+│   └── EnumExtensions.cs
+│
+├── Helpers/                               # Helper Classes
+│   ├── PriceCalculator.cs
+│   ├── LicensePlateValidator.cs
+│   └── PostalCodeHelper.cs
+│
+└── Models/                                # Shared Models
+    ├── ApiResponse.cs
+    ├── PaginatedResult.cs
+    └── ErrorDetails.cs

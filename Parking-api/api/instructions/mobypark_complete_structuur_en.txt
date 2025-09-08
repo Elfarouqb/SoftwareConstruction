@@ -1,0 +1,303 @@
+MobyPark/
+│
+├── frontend/
+│   ├── admin-portal/                                                          # Admin applicatie voor werknemers
+│   │   ├── src/
+│   │   │   ├── pages/
+│   │   │   │   ├── Dashboard.tsx                                              # Overzicht statistieken, actieve sessies
+│   │   │   │   ├── Users.tsx                                                  # Klantenbeheer, accounts blokkeren/deblokkeren
+│   │   │   │   ├── ParkingLocations.tsx                                       # Locaties toevoegen/wijzigen, tarieven instellen
+│   │   │   │   ├── ActiveSessions.tsx                                         # Live parkeer monitoring, handmatig stoppen
+│   │   │   │   ├── Payments.tsx                                               # Transacties, terugbetalingen verwerken
+│   │   │   │   ├── Reports.tsx                                                # Omzet, bezetting, export naar Excel/PDF
+│   │   │   │   ├── Reservations.tsx                                           # Reserveringen beheren, annuleren
+│   │   │   │   └── Settings.tsx                                               # Systeeminstellingen, email templates
+│   │   │   │
+│   │   │   ├── components/
+│   │   │   │   ├── layout/
+│   │   │   │   │   ├── AdminHeader.tsx                                        # Navigatie, uitlog knop, notificaties
+│   │   │   │   │   ├── AdminSidebar.tsx                                       # Menu items, rol-gebaseerde weergave
+│   │   │   │   │   └── AdminLayout.tsx                                        # Wrapper voor alle admin pagina's
+│   │   │   │   ├── charts/                                                    # Grafiek componenten voor rapportages
+│   │   │   │   │   ├── RevenueChart.tsx                                       # Dagelijkse/maandelijkse omzet grafiek
+│   │   │   │   │   ├── OccupancyChart.tsx                                     # Bezettingsgraad per locatie
+│   │   │   │   │   └── UsersChart.tsx                                         # Nieuwe gebruikers trend
+│   │   │   │   └── tables/                                                    # Tabel componenten
+│   │   │   │       ├── UsersTable.tsx                                         # Sorteerbaar, filterbaar, paginatie
+│   │   │   │       ├── SessionsTable.tsx                                      # Live updates via websocket
+│   │   │   │       └── PaymentsTable.tsx                                      # Export functionaliteit
+│   │   │   │
+│   │   │   ├── services/
+│   │   │   │   ├── api.service.ts                                             # Axios setup, interceptors, auth headers
+│   │   │   │   ├── auth.service.ts                                            # Login, logout, token refresh
+│   │   │   │   ├── users.service.ts                                           # CRUD gebruikers endpoints
+│   │   │   │   ├── parking.service.ts                                         # Locaties, sessies endpoints
+│   │   │   │   ├── payments.service.ts                                        # Transacties, terugbetalingen
+│   │   │   │   └── reports.service.ts                                         # Data aggregatie endpoints
+│   │   │   │
+│   │   │   ├── store/                                                         # Zustand state management
+│   │   │   │   ├── authStore.ts                                               # Login state, gebruiker info, rechten
+│   │   │   │   ├── notificationStore.ts                                       # Real-time meldingen
+│   │   │   │   └── filterStore.ts                                             # Tabel filters, zoek criteria
+│   │   │   │
+│   │   │   ├── hooks/
+│   │   │   │   ├── useAuth.ts                                                 # Authenticatie check, redirect
+│   │   │   │   ├── useWebSocket.ts                                            # Real-time updates SignalR
+│   │   │   │   └── useDebounce.ts                                             # Zoekfunctie optimalisatie
+│   │   │   │
+│   │   │   ├── types/
+│   │   │   │   ├── api.types.ts                                               # API response/request types
+│   │   │   │   ├── models.types.ts                                            # Domain model interfaces
+│   │   │   │   └── admin.types.ts                                             # Admin specifieke types
+│   │   │   │
+│   │   │   ├── App.tsx                                                        # Router setup, auth provider
+│   │   │   └── main.tsx                                                       # React DOM render, providers
+│   │   │
+│   │   ├── public/                                                            # Statische bestanden
+│   │   ├── vite.config.ts                                                     # Vite configuratie
+│   │   ├── tailwind.config.js                                                 # Tailwind CSS configuratie
+│   │   ├── tsconfig.json                                                      # TypeScript configuratie
+│   │   ├── package.json                                                       # NPM dependencies en scripts
+│   │   └── .env.local                                                         # Environment variabelen
+│   │
+│   └── mobile-app/                                                            # React Native app voor klanten
+│       ├── src/
+│       │   ├── screens/
+│       │   │   ├── auth/
+│       │   │   │   ├── LoginScreen.tsx                                        # Inloggen met email/wachtwoord
+│       │   │   │   ├── RegisterScreen.tsx                                     # Nieuwe account aanmaken
+│       │   │   │   └── ForgotPasswordScreen.tsx                               # Wachtwoord reset flow
+│       │   │   ├── home/
+│       │   │   │   ├── HomeScreen.tsx                                         # Dashboard, snelle acties
+│       │   │   │   └── ParkingMap.tsx                                         # Kaart met locaties
+│       │   │   ├── parking/
+│       │   │   │   ├── StartParking.tsx                                       # QR scan, kenteken invoer
+│       │   │   │   ├── ActiveSession.tsx                                      # Timer, kosten, stop knop
+│       │   │   │   └── ParkingHistory.tsx                                     # Geschiedenis, facturen
+│       │   │   ├── payment/
+│       │   │   │   ├── PaymentScreen.tsx                                      # iDEAL, creditcard, PayPal
+│       │   │   │   └── InvoiceScreen.tsx                                      # Download/email PDF
+│       │   │   └── profile/
+│       │   │       ├── ProfileScreen.tsx                                      # Account gegevens
+│       │   │       ├── VehiclesScreen.tsx                                     # Kentekens beheren
+│       │   │       └── SettingsScreen.tsx                                     # Notificaties, taal
+│       │   │
+│       │   ├── navigation/
+│       │   │   ├── AppNavigator.tsx                                           # Stack + Tab navigatie
+│       │   │   └── AuthNavigator.tsx                                          # Login flow navigatie
+│       │   │
+│       │   ├── components/                                                    # Herbruikbare componenten
+│       │   ├── services/                                                      # API calls, AsyncStorage
+│       │   └── utils/                                                         # Helpers, formatters
+│       │
+│       ├── ios/                                                               # iOS specifieke bestanden
+│       ├── android/                                                           # Android specifieke bestanden
+│       └── package.json                                                       # NPM dependencies
+│
+├── backend/
+│   ├── src/
+│   │   ├── MobyPark.API/                                                      # Presentatie laag - HTTP interface
+│   │   │   ├── Controllers/
+│   │   │   │   ├── AuthController.cs                                          # Login, register, token refresh endpoints
+│   │   │   │   ├── UsersController.cs                                         # CRUD gebruikers, profiel updates
+│   │   │   │   ├── ParkingLocationsController.cs                              # Locaties beheer, beschikbaarheid
+│   │   │   │   ├── SessionsController.cs                                      # Start/stop parkeren, actieve sessies
+│   │   │   │   ├── PaymentsController.cs                                      # Payment processing, refunds
+│   │   │   │   ├── VehiclesController.cs                                      # Kenteken registratie
+│   │   │   │   ├── ReservationsController.cs                                  # Vooraf reserveren parkeerplaats
+│   │   │   │   └── ReportsController.cs                                       # Admin rapportages, export
+│   │   │   │
+│   │   │   ├── DTOs/
+│   │   │   │   ├── Auth/
+│   │   │   │   │   ├── LoginDto.cs                                            # Gebruikersnaam + wachtwoord input
+│   │   │   │   │   ├── RegisterDto.cs                                         # Nieuwe gebruiker gegevens
+│   │   │   │   │   ├── TokenResponseDto.cs                                    # JWT + refresh token output
+│   │   │   │   │   └── PasswordResetDto.cs                                    # Email + reset code + nieuw ww
+│   │   │   │   ├── Parking/
+│   │   │   │   │   ├── ParkingLocationDto.cs                                  # Locatie info + tarieven
+│   │   │   │   │   ├── StartSessionDto.cs                                     # Kenteken + locatie ID
+│   │   │   │   │   ├── StopSessionDto.cs                                      # Sessie ID + eindtijd
+│   │   │   │   │   └── SessionDetailsDto.cs                                   # Complete sessie info
+│   │   │   │   └── Payment/
+│   │   │   │       ├── PaymentRequestDto.cs                                   # Bedrag + methode + sessie
+│   │   │   │       ├── InvoiceDto.cs                                          # Factuur details + PDF
+│   │   │   │       └── RefundDto.cs                                           # Refund aanvraag
+│   │   │   │
+│   │   │   ├── Middleware/
+│   │   │   │   ├── AuthenticationMiddleware.cs                                # JWT token validatie
+│   │   │   │   ├── ExceptionMiddleware.cs                                     # Global error handling
+│   │   │   │   ├── LoggingMiddleware.cs                                       # Request/response logging
+│   │   │   │   ├── RateLimitMiddleware.cs                                     # API throttling
+│   │   │   │   └── CorsMiddleware.cs                                          # Cross-origin requests
+│   │   │   │
+│   │   │   ├── Validators/                                                    # FluentValidation classes
+│   │   │   │   ├── LoginValidator.cs                                          # Email format, ww lengte
+│   │   │   │   ├── LicensePlateValidator.cs                                   # Nederlands kenteken check
+│   │   │   │   └── PaymentValidator.cs                                        # Bedrag > 0, valide sessie
+│   │   │   │
+│   │   │   ├── Services/                                                      # Business logic implementatie
+│   │   │   │   ├── Interfaces/
+│   │   │   │   │   ├── IAuthService.cs
+│   │   │   │   │   ├── IParkingService.cs
+│   │   │   │   │   └── IPaymentService.cs
+│   │   │   │   ├── AuthService.cs                                             # Login logic, JWT generatie
+│   │   │   │   ├── ParkingService.cs                                          # Sessie beheer, tarief calc
+│   │   │   │   ├── PaymentService.cs                                          # Payment gateway integratie
+│   │   │   │   └── NotificationService.cs                                     # Email/SMS verzenden
+│   │   │   │
+│   │   │   ├── Program.cs                                                     # WebHost configuratie
+│   │   │   ├── Startup.cs                                                     # DI container, pipeline
+│   │   │   └── appsettings.json                                               # Connection strings, JWT secret
+│   │   │
+│   │   ├── MobyPark.Domain/                                                   # Business domein - geen dependencies
+│   │   │   ├── Entities/
+│   │   │   │   ├── User.cs                                                    # User entity met properties
+│   │   │   │   ├── ParkingLocation.cs                                         # Parking location entity
+│   │   │   │   ├── ParkingSession.cs                                          # Active/historic sessions
+│   │   │   │   ├── Payment.cs                                                 # Payment transactions
+│   │   │   │   ├── Vehicle.cs                                                 # Registered vehicles
+│   │   │   │   └── Reservation.cs                                             # Future bookings
+│   │   │   │
+│   │   │   ├── ValueObjects/
+│   │   │   │   ├── Email.cs                                                   # Email validatie + normalisatie
+│   │   │   │   ├── LicensePlate.cs                                            # Kenteken format + validatie
+│   │   │   │   └── Money.cs                                                   # Bedrag + valuta + BTW calc
+│   │   │   │
+│   │   │   ├── Enums/
+│   │   │   │   ├── UserRole.cs                                                # Admin, Werknemer, Klant
+│   │   │   │   ├── SessionStatus.cs                                           # Actief, Gestopt, Betaald
+│   │   │   │   └── PaymentStatus.cs                                           # Pending, Voltooid, Mislukt
+│   │   │   │
+│   │   │   └── Exceptions/
+│   │   │       ├── DomainException.cs                                         # Base exception class
+│   │   │       └── BusinessRuleException.cs                                   # Validatie fouten
+│   │   │
+│   │   ├── MobyPark.Infrastructure/                                           # Database & externe services
+│   │   │   ├── Data/
+│   │   │   │   ├── MobyParkDbContext.cs                                       # EF Core DbContext setup
+│   │   │   │   ├── Configurations/                                            # Fluent API configs
+│   │   │   │   │   ├── UserConfiguration.cs                                   # Tabel mapping, indexes
+│   │   │   │   │   ├── ParkingLocationConfiguration.cs                        # Relations, constraints
+│   │   │   │   │   └── SessionConfiguration.cs                                # Composite keys
+│   │   │   │   └── Migrations/                                                # Database versioning
+│   │   │   │       ├── 001_InitialCreate.cs                                   # Eerste tabellen
+│   │   │   │       ├── 002_AddIndexes.cs                                      # Performance indexes
+│   │   │   │       └── 003_AddReservations.cs                                 # Nieuwe feature
+│   │   │   │
+│   │   │   ├── Repositories/                                                  # Data access layer
+│   │   │   │   ├── Interfaces/
+│   │   │   │   │   ├── IRepository.cs                                         # Generic CRUD interface
+│   │   │   │   │   ├── IUserRepository.cs                                     # User specifieke queries
+│   │   │   │   │   └── ISessionRepository.cs                                  # Sessie queries
+│   │   │   │   ├── BaseRepository.cs                                          # Generic CRUD implementatie
+│   │   │   │   ├── UserRepository.cs                                          # FindByEmail, CheckUsername
+│   │   │   │   ├── ParkingLocationRepository.cs                               # GetAvailable, UpdateCapacity
+│   │   │   │   ├── SessionRepository.cs                                       # GetActive, GetByKenteken
+│   │   │   │   └── PaymentRepository.cs                                       # GetPending, GetByUser
+│   │   │   │
+│   │   │   ├── Services/
+│   │   │   │   ├── EmailService.cs                                            # SendGrid/SMTP integratie
+│   │   │   │   ├── SmsService.cs                                              # Twilio integratie
+│   │   │   │   ├── PaymentGateway.cs                                          # Mollie/Stripe integratie
+│   │   │   │   ├── CacheService.cs                                            # Redis caching
+│   │   │   │   └── BlobStorageService.cs                                      # Factuur PDF opslag
+│   │   │   │
+│   │   │   └── Security/
+│   │   │       ├── JwtTokenGenerator.cs                                       # JWT token creatie
+│   │   │       ├── PasswordHasher.cs                                          # BCrypt hashing
+│   │   │       └── EncryptionService.cs                                       # Gevoelige data encryptie
+│   │   │
+│   │   └── MobyPark.Common/                                                   # Gedeelde utilities
+│   │       ├── Constants/
+│   │       │   ├── ErrorCodes.cs                                              # Standaard error codes
+│   │       │   ├── RegexPatterns.cs                                           # Email, kenteken patterns
+│   │       │   └── SystemConstants.cs                                         # Max login pogingen etc
+│   │       │
+│   │       ├── Extensions/
+│   │       │   ├── StringExtensions.cs                                        # ToKenteken(), IsEmail()
+│   │       │   ├── DateTimeExtensions.cs                                      # ToNederlandsFormaat()
+│   │       │   └── DecimalExtensions.cs                                       # RondAfOpCenten()
+│   │       │
+│   │       └── Helpers/
+│   │           ├── PriceCalculator.cs                                         # Prijs berekening logica
+│   │           ├── LicensePlateFormatter.cs                                   # Format AB-12-CD
+│   │           └── PostalCodeValidator.cs                                     # 1234AB validatie
+│   │
+│   └── tests/
+│       ├── MobyPark.API.Tests/                                                # API laag unit tests
+│       ├── MobyPark.Domain.Tests/                                             # Domain laag unit tests
+│       ├── MobyPark.Infrastructure.Tests/                                     # Infrastructure tests
+│       ├── MobyPark.Common.Tests/                                             # Common utilities tests
+│       ├── MobyPark.IntegrationTests/                                         # Integratie tests
+│       └── MobyPark.E2ETests/                                                 # End-to-end tests
+│
+├── infrastructure/
+│   ├── docker/
+│   │   ├── Dockerfile.frontend                                                # Node.js image voor React
+│   │   ├── Dockerfile.backend                                                 # .NET 8 image
+│   │   ├── docker-compose.yml                                                 # Development setup
+│   │   └── docker-compose.prod.yml                                            # Production setup
+│   │
+│   ├── kubernetes/
+│   │   ├── namespace.yaml                                                     # mobypark namespace
+│   │   ├── configmaps/                                                        # Configuratie bestanden
+│   │   ├── secrets/                                                           # Gevoelige gegevens
+│   │   ├── deployments/                                                       # Pod deployments
+│   │   ├── services/                                                          # Service definitions
+│   │   └── ingress/                                                           # Load balancer configuratie
+│   │
+│   └── terraform/
+│       ├── environments/                                                      # Omgeving specifieke configs
+│       └── modules/                                                           # Herbruikbare modules
+│
+├── .github/
+│   ├── workflows/
+│   │   ├── ci-backend.yml                                                     # .NET build & test
+│   │   ├── ci-frontend.yml                                                    # Node build & test
+│   │   ├── deploy-staging.yml                                                 # Deploy naar staging
+│   │   ├── deploy-production.yml                                              # Deploy naar productie
+│   │   └── security-scan.yml                                                  # OWASP, Snyk scans
+│   │
+│   ├── PULL_REQUEST_TEMPLATE.md                                               # PR checklist
+│   └── CODEOWNERS                                                             # Code review toewijzingen
+│
+├── docs/
+│   ├── api/
+│   │   ├── openapi.yaml                                                       # OpenAPI specificatie
+│   │   └── postman-collection.json                                            # Postman endpoints
+│   │
+│   ├── architecture/
+│   │   ├── system-design.md                                                   # Architectuur beslissingen
+│   │   ├── database-schema.md                                                 # ERD en uitleg
+│   │   └── security.md                                                        # Security maatregelen
+│   │
+│   ├── deployment/
+│   │   ├── local-setup.md                                                     # Development setup
+│   │   ├── docker-setup.md                                                    # Docker instructies
+│   │   └── production-deploy.md                                               # Productie deployment
+│   │
+│   └── user-guides/
+│       ├── admin-manual.md                                                    # Admin portal handleiding
+│       └── app-manual.md                                                      # Mobiele app handleiding
+│
+├── scripts/
+│   ├── setup/
+│   │   ├── install-dependencies.sh                                            # NPM & NuGet packages
+│   │   ├── setup-database.sh                                                  # Database init
+│   │   └── seed-data.sh                                                       # Test data laden
+│   │
+│   ├── deployment/
+│   │   ├── build.sh                                                           # Build alle projecten
+│   │   ├── deploy-staging.sh                                                  # Deploy naar staging
+│   │   └── rollback.sh                                                        # Rollback script
+│   │
+│   └── monitoring/
+│       ├── health-check.sh                                                    # API health checks
+│       └── backup-database.sh                                                 # Database backup
+│
+├── .gitignore                                                                 # Git ignore patterns
+├── .editorconfig                                                              # Code style settings
+├── .env.example                                                               # Environment template
+├── README.md                                                                  # Project documentatie
+├── LICENSE                                                                    # MIT License
+└── MobyPark.sln                                                              # Visual Studio solution

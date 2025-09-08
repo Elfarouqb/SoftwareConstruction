@@ -1,0 +1,102 @@
+backend/src/MobyPark.Domain/
+│
+├── Entities/                              # Domain Entities
+│   ├── User.cs
+│   │   public class User
+│   │   {
+│   │       public int Id { get; set; }
+│   │       public string Username { get; set; }
+│   │       public string Email { get; set; }
+│   │       public string PasswordHash { get; set; }
+│   │       public string Name { get; set; }
+│   │       public string PhoneNumber { get; set; }
+│   │       public UserRole Role { get; set; }
+│   │       public DateTime CreatedAt { get; set; }
+│   │       public List<Vehicle> Vehicles { get; set; }
+│   │   }
+│   │
+│   ├── ParkingLocation.cs
+│   │   public class ParkingLocation
+│   │   {
+│   │       public int Id { get; set; }
+│   │       public string Name { get; set; }
+│   │       public string Address { get; set; }
+│   │       public string PostalCode { get; set; }
+│   │       public string City { get; set; }
+│   │       public int TotalSpaces { get; set; }
+│   │       public int AvailableSpaces { get; set; }
+│   │       public decimal HourlyRate { get; set; }
+│   │       public decimal DailyRate { get; set; }
+│   │       public bool IsActive { get; set; }
+│   │   }
+│   │
+│   ├── ParkingSession.cs
+│   │   public class ParkingSession
+│   │   {
+│   │       public int Id { get; set; }
+│   │       public string LicensePlate { get; set; }
+│   │       public int ParkingLocationId { get; set; }
+│   │       public int UserId { get; set; }
+│   │       public DateTime StartTime { get; set; }
+│   │       public DateTime? EndTime { get; set; }
+│   │       public decimal? TotalAmount { get; set; }
+│   │       public SessionStatus Status { get; set; }
+│   │   }
+│   │
+│   ├── Payment.cs
+│   │   public class Payment
+│   │   {
+│   │       public int Id { get; set; }
+│   │       public string TransactionId { get; set; }
+│   │       public int SessionId { get; set; }
+│   │       public decimal Amount { get; set; }
+│   │       public PaymentStatus Status { get; set; }
+│   │       public DateTime CreatedAt { get; set; }
+│   │       public DateTime? CompletedAt { get; set; }
+│   │   }
+│   │
+│   ├── Vehicle.cs
+│   │   public class Vehicle
+│   │   {
+│   │       public int Id { get; set; }
+│   │       public string LicensePlate { get; set; }
+│   │       public string Brand { get; set; }
+│   │       public string Model { get; set; }
+│   │       public string Color { get; set; }
+│   │       public int UserId { get; set; }
+│   │   }
+│   │
+│   └── Reservation.cs
+│       public class Reservation
+│       {
+│           public int Id { get; set; }
+│           public int UserId { get; set; }
+│           public int ParkingLocationId { get; set; }
+│           public DateTime StartDate { get; set; }
+│           public DateTime EndDate { get; set; }
+│           public string LicensePlate { get; set; }
+│           public ReservationStatus Status { get; set; }
+│       }
+│
+├── Enums/                                 # Enumerations
+│   ├── UserRole.cs
+│   │   public enum UserRole
+│   │   {
+│   │       Customer,
+│   │       Employee,
+│   │       Admin
+│   │   }
+│   │
+│   ├── SessionStatus.cs
+│   ├── PaymentStatus.cs
+│   └── ReservationStatus.cs
+│
+├── ValueObjects/                          # Value Objects
+│   ├── Email.cs
+│   ├── LicensePlate.cs
+│   └── Money.cs
+│
+└── Exceptions/                            # Domain Exceptions
+    ├── UserNotFoundException.cs
+    ├── InvalidSessionException.cs
+    └── PaymentFailedException.cs

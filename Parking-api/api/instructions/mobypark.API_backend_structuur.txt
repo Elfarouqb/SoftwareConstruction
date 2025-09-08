@@ -1,0 +1,104 @@
+backend/src/MobyPark.API/
+│
+├── Controllers/                            # API Controllers
+│   ├── AuthController.cs
+│   │   // POST /api/auth/login
+│   │   // POST /api/auth/register
+│   │   // POST /api/auth/refresh
+│   │   // POST /api/auth/logout
+│   │   // POST /api/auth/forgot-password
+│   │   // POST /api/auth/reset-password
+│   │
+│   ├── GebruikersController.cs           # Gebruikersbeheer
+│   │   // GET  /api/gebruikers
+│   │   // GET  /api/gebruikers/{id}
+│   │   // PUT  /api/gebruikers/{id}
+│   │   // DELETE /api/gebruikers/{id}
+│   │   // GET  /api/gebruikers/{id}/voertuigen
+│   │
+│   ├── ParkeerlocatiesController.cs      # Parkeerlocaties
+│   │   // GET  /api/parkeerlocaties
+│   │   // GET  /api/parkeerlocaties/{id}
+│   │   // POST /api/parkeerlocaties (admin)
+│   │   // PUT  /api/parkeerlocaties/{id} (admin)
+│   │   // DELETE /api/parkeerlocaties/{id} (admin)
+│   │   // GET  /api/parkeerlocaties/{id}/beschikbaarheid
+│   │
+│   ├── SessiesController.cs              # Parkeersessies
+│   │   // POST /api/sessies/start
+│   │   // PUT  /api/sessies/{id}/stop
+│   │   // GET  /api/sessies/actief
+│   │   // GET  /api/sessies/geschiedenis
+│   │   // GET  /api/sessies/{id}
+│   │
+│   ├── BetalingenController.cs           # Betalingen
+│   │   // POST /api/betalingen/verwerk
+│   │   // GET  /api/betalingen/factuur/{sessieId}
+│   │   // GET  /api/betalingen/geschiedenis
+│   │   // POST /api/betalingen/terugbetaling
+│   │
+│   ├── VoertuigenController.cs           # Voertuigbeheer
+│   │   // GET  /api/voertuigen
+│   │   // POST /api/voertuigen
+│   │   // PUT  /api/voertuigen/{id}
+│   │   // DELETE /api/voertuigen/{id}
+│   │
+│   ├── ReserveringenController.cs        # Reserveringen
+│   │   // POST /api/reserveringen
+│   │   // GET  /api/reserveringen
+│   │   // PUT  /api/reserveringen/{id}
+│   │   // DELETE /api/reserveringen/{id}
+│   │
+│   └── RapportagesController.cs          # Rapportages (admin)
+│       // GET /api/rapportages/omzet
+│       // GET /api/rapportages/bezetting
+│       // GET /api/rapportages/gebruikers
+│
+├── Services/                              # Business Logic Diensten
+│   ├── Interfaces/
+│   │   ├── IAuthService.cs
+│   │   ├── IGebruikerService.cs
+│   │   ├── IParkeerService.cs
+│   │   ├── IBetalingService.cs
+│   │   └── INotificatieService.cs
+│   │
+│   ├── AuthService.cs
+│   ├── GebruikerService.cs
+│   ├── ParkeerService.cs
+│   ├── BetalingService.cs
+│   ├── VoertuigService.cs
+│   ├── ReserveringService.cs
+│   └── NotificatieService.cs
+│
+├── DTOs/                                  # Data Transfer Objecten
+│   ├── Auth/
+│   │   ├── LoginDto.cs
+│   │   ├── RegistratieDto.cs
+│   │   ├── TokenResponseDto.cs
+│   │   └── WachtwoordResetDto.cs
+│   │
+│   ├── Parkeren/
+│   │   ├── ParkeerlocatieDto.cs
+│   │   ├── StartSessieDto.cs
+│   │   ├── StopSessieDto.cs
+│   │   └── SessieDetailsDto.cs
+│   │
+│   └── Betaling/
+│       ├── BetalingAanvraagDto.cs
+│       ├── FactuurDto.cs
+│       └── TerugbetalingDto.cs
+│
+├── Middleware/                            # Middleware Componenten
+│   ├── AuthenticatieMiddleware.cs
+│   ├── ExceptieMiddleware.cs
+│   ├── LoggingMiddleware.cs
+│   └── RateLimitMiddleware.cs
+│
+├── Validators/                            # Input Validatie
+│   ├── LoginValidator.cs
+│   ├── RegistratieValidator.cs
+│   └── SessieValidator.cs
+│
+├── Program.cs                             # Applicatie Ingang
+├── Startup.cs                             # Configuratie
+└── appsettings.json                      # Instellingen
