@@ -1,0 +1,508 @@
+### ==============================================================
+### COMPLETE API ENDPOINTS LIST - ALLE 38 ENDPOINTS
+### ==============================================================
+### 
+### AUTHENTICATION (3 endpoints)
+### ----------------------------
+### POST   /register                           - Nieuwe gebruiker registreren
+### POST   /login                              - Inloggen en token krijgen
+### GET    /logout                             - Uitloggen
+### 
+### USER PROFILE (2 endpoints)
+### ---------------------------
+### GET    /profile                            - Profiel ophalen
+### PUT    /profile                            - Profiel updaten
+### 
+### PARKING LOTS (5 endpoints)
+### ---------------------------
+### GET    /parking-lots                       - Alle parkeerplaatsen ophalen (PUBLIC)
+### GET    /parking-lots/{id}                  - Specifieke parkeerplaats ophalen
+### POST   /parking-lots                       - Nieuwe parkeerplaats maken (ADMIN)
+### PUT    /parking-lots/{id}                  - Parkeerplaats updaten (ADMIN)
+### DELETE /parking-lots/{id}                  - Parkeerplaats verwijderen (ADMIN)
+### 
+### PARKING SESSIONS (5 endpoints)
+### -------------------------------
+### POST   /parking-lots/{id}/sessions/start   - Start parkeersessie
+### POST   /parking-lots/{id}/sessions/stop    - Stop parkeersessie
+### GET    /parking-lots/{id}/sessions         - Alle sessies ophalen
+### GET    /parking-lots/{id}/sessions/{sid}   - Specifieke sessie ophalen
+### DELETE /parking-lots/{id}/sessions/{sid}   - Sessie verwijderen (ADMIN)
+### 
+### RESERVATIONS (4 endpoints)
+### --------------------------
+### POST   /reservations                       - Nieuwe reservering maken
+### GET    /reservations/{id}                  - Reservering ophalen
+### PUT    /reservations/{id}                  - Reservering updaten
+### DELETE /reservations/{id}                  - Reservering verwijderen
+### 
+### VEHICLES (8 endpoints)
+### ----------------------
+### POST   /vehicles                           - Nieuw voertuig registreren
+### POST   /vehicles/{id}/entry                - Voertuig entry registreren
+### GET    /vehicles                           - Eigen voertuigen ophalen
+### GET    /vehicles/{username}                - User voertuigen ophalen (ADMIN)
+### GET    /vehicles/{id}/reservations         - Voertuig reserveringen ophalen
+### GET    /vehicles/{id}/history              - Voertuig geschiedenis ophalen
+### PUT    /vehicles/{id}                      - Voertuig updaten
+### DELETE /vehicles/{id}                      - Voertuig verwijderen
+### 
+### PAYMENTS (5 endpoints)
+### ----------------------
+### POST   /payments                           - Nieuwe betaling maken
+### POST   /payments/refund                    - Refund maken (ADMIN)
+### GET    /payments                           - Eigen betalingen ophalen
+### GET    /payments/{username}                - User betalingen ophalen (ADMIN)
+### PUT    /payments/{transaction_id}          - Betaling voltooien
+### 
+### BILLING (2 endpoints)
+### ---------------------
+### GET    /billing                            - Eigen facturering ophalen
+### GET    /billing/{username}                 - User facturering ophalen (ADMIN)
+### 
+### ==============================================================
+### TOTAAL: 38 ENDPOINTS
+### ==============================================================
+
+@baseUrl = http://localhost:8000
+@contentType = application/json
+
+### ====================================
+### AUTHENTICATION (3 endpoints)
+### ====================================
+
+### 1. POST /register - Nieuwe gebruiker registreren
+### NOTE: Bug in code uses users.add() instead of users.append()
+POST {{baseUrl}}/register
+Content-Type: {{contentType}}
+
+{
+  "username": "admin",
+  "password": "admin123",
+  "name": "System Administrator"
+}
+
+###
+
+### 2. POST /login - Inloggen en token krijgen
+### NOTE: Bug - returns "Invalid credentials" on first non-match
+POST {{baseUrl}}/login
+Content-Type: {{contentType}}
+
+{
+  "username": "testuser",
+  "password": "password123"
+}
+
+### Store the token from response
+@adminToken =  c148711c-c6a6-499c-ace1-b47144fe5003
+
+###
+
+### 3. GET /logout - Uitloggen
+GET {{baseUrl}}/logout
+Authorization: {{adminToken}}
+
+###
+
+### ====================================
+### USER PROFILE (2 endpoints)
+### ====================================
+
+### 4. GET /profile - Profiel ophalen
+GET {{baseUrl}}/profile
+Authorization: {{adminToken}}
+
+###
+
+### 5. PUT /profile - Profiel updaten
+PUT {{baseUrl}}/profile
+Content-Type: {{contentType}}
+Authorization: {{adminToken}}
+
+{
+  "name": "Updated Admin Name",
+  "email": "admin@parking.com",
+  "phone": "+31612345678"
+}
+
+###
+
+### ====================================
+### PARKING LOTS (5 endpoints)
+### ====================================
+
+### 6. GET /parking-lots - Alle parkeerplaatsen ophalen (PUBLIC)
+GET {{baseUrl}}/parking-lots
+Authorization: {{adminToken}}
+
+###
+
+### 7. GET /parking-lots/{id} - Specifieke parkeerplaats ophalen
+GET {{baseUrl}}/parking-lots/P001
+Authorization: {{adminToken}}
+
+###
+
+### 8. POST /parking-lots - Nieuwe parkeerplaats maken (ADMIN)
+POST {{baseUrl}}/parking-lots
+Content-Type: {{contentType}}
+Authorization: {{adminToken}}
+
+{
+  "lot_id": "P100",
+  "name": "Test Parking Lot",
+  "address": "123 Test Street",
+  "capacity": 100,
+  "price_per_hour": 5.50
+}
+
+###
+
+### 9. PUT /parking-lots/{id} - Parkeerplaats updaten (ADMIN)
+PUT {{baseUrl}}/parking-lots/P001
+Content-Type: {{contentType}}
+Authorization: {{adminToken}}
+
+{
+  "name": "Updated Parking Lot",
+  "capacity": 150,
+  "price_per_hour": 6.00
+}
+
+###
+
+### 10. DELETE /parking-lots/{id} - Parkeerplaats verwijderen (ADMIN)
+DELETE {{baseUrl}}/parking-lots/P100
+Authorization: {{adminToken}}
+
+###
+
+### ====================================
+### PARKING SESSIONS (5 endpoints)
+### ====================================
+
+### 11. POST /parking-lots/{id}/sessions/start - Start parkeersessie
+POST {{baseUrl}}/parking-lots/P001/sessions/start
+Content-Type: {{contentType}}
+Authorization: {{adminToken}}
+
+{
+  "licenseplate": "ABC123"
+}
+
+###
+
+### 12. POST /parking-lots/{id}/sessions/stop - Stop parkeersessie
+### NOTE: Bug - checks len(filtered) < 0 which is impossible
+POST {{baseUrl}}/parking-lots/P001/sessions/stop
+Content-Type: {{contentType}}
+Authorization: {{adminToken}}
+
+{
+  "licenseplate": "ABC123"
+}
+
+###
+
+### 13. GET /parking-lots/{id}/sessions - Alle sessies ophalen
+GET {{baseUrl}}/parking-lots/P001/sessions
+Authorization: {{adminToken}}
+
+###
+
+### 14. GET /parking-lots/{id}/sessions/{sid} - Specifieke sessie ophalen
+GET {{baseUrl}}/parking-lots/P001/sessions/SES001
+Authorization: {{adminToken}}
+
+###
+
+### 15. DELETE /parking-lots/{id}/sessions/{sid} - Sessie verwijderen (ADMIN)
+DELETE {{baseUrl}}/parking-lots/P001/sessions/SES001
+Authorization: {{adminToken}}
+
+###
+
+### ====================================
+### RESERVATIONS (4 endpoints)
+### ====================================
+
+### 16. POST /reservations - Nieuwe reservering maken
+POST {{baseUrl}}/reservations
+Content-Type: {{contentType}}
+Authorization: {{adminToken}}
+
+{
+  "reservation_id": "R001",
+  "lot_id": "P001",
+  "vehicle_id": "ABC123",
+  "start_time": "2025-01-10T10:00:00",
+  "end_time": "2025-01-10T12:00:00",
+  "status": "confirmed"
+}
+
+###
+
+### 17. GET /reservations/{id} - Reservering ophalen
+GET {{baseUrl}}/reservations/R001
+Authorization: {{adminToken}}
+
+###
+
+### 18. PUT /reservations/{id} - Reservering updaten
+PUT {{baseUrl}}/reservations/R001
+Content-Type: {{contentType}}
+Authorization: {{adminToken}}
+
+{
+  "end_time": "2025-01-10T14:00:00",
+  "status": "extended"
+}
+
+###
+
+### 19. DELETE /reservations/{id} - Reservering verwijderen
+DELETE {{baseUrl}}/reservations/R001
+Authorization: {{adminToken}}
+
+###
+
+### ====================================
+### VEHICLES (8 endpoints)
+### ====================================
+
+### 20. POST /vehicles - Nieuw voertuig registreren
+POST {{baseUrl}}/vehicles
+Content-Type: {{contentType}}
+Authorization: {{adminToken}}
+
+{
+  "vehicle_id": "ABC123",
+  "licenseplate": "ABC123",
+  "brand": "Toyota",
+  "model": "Camry",
+  "color": "Blue",
+  "owner": "admin"
+}
+
+###
+
+### 21. POST /vehicles/{id}/entry - Voertuig entry registreren
+POST {{baseUrl}}/vehicles/ABC123/entry
+Content-Type: {{contentType}}
+Authorization: {{adminToken}}
+
+{
+  "lot_id": "P001",
+  "entry_time": "2025-01-10T10:00:00"
+}
+
+###
+
+### 22. GET /vehicles - Eigen voertuigen ophalen
+GET {{baseUrl}}/vehicles
+Authorization: {{adminToken}}
+
+###
+
+### 23. GET /vehicles/{username} - User voertuigen ophalen (ADMIN)
+GET {{baseUrl}}/vehicles/testuser
+Authorization: {{adminToken}}
+
+###
+
+### 24. GET /vehicles/{id}/reservations - Voertuig reserveringen ophalen
+GET {{baseUrl}}/vehicles/ABC123/reservations
+Authorization: {{adminToken}}
+
+###
+
+### 25. GET /vehicles/{id}/history - Voertuig geschiedenis ophalen
+GET {{baseUrl}}/vehicles/ABC123/history
+Authorization: {{adminToken}}
+
+###
+
+### 26. PUT /vehicles/{id} - Voertuig updaten
+PUT {{baseUrl}}/vehicles/ABC123
+Content-Type: {{contentType}}
+Authorization: {{adminToken}}
+
+{
+  "color": "Red",
+  "model": "Corolla"
+}
+
+###
+
+### 27. DELETE /vehicles/{id} - Voertuig verwijderen
+DELETE {{baseUrl}}/vehicles/ABC123
+Authorization: {{adminToken}}
+
+###
+
+### ====================================
+### PAYMENTS (5 endpoints)
+### ====================================
+
+### 28. POST /payments - Nieuwe betaling maken
+POST {{baseUrl}}/payments
+Content-Type: {{contentType}}
+Authorization: {{adminToken}}
+
+{
+  "payment_id": "PAY001",
+  "reservation_id": "R001",
+  "amount": 25.50,
+  "payment_method": "credit_card",
+  "status": "pending"
+}
+
+###
+
+### 29. POST /payments/refund - Refund maken (ADMIN)
+POST {{baseUrl}}/payments/refund
+Content-Type: {{contentType}}
+Authorization: {{adminToken}}
+
+{
+  "payment_id": "PAY001",
+  "reason": "Reservation cancelled",
+  "amount": 25.50
+}
+
+###
+
+### 30. GET /payments - Eigen betalingen ophalen
+GET {{baseUrl}}/payments
+Authorization: {{adminToken}}
+
+###
+
+### 31. GET /payments/{username} - User betalingen ophalen (ADMIN)
+GET {{baseUrl}}/payments/testuser
+Authorization: {{adminToken}}
+
+###
+
+### 32. PUT /payments/{transaction_id} - Betaling voltooien
+PUT {{baseUrl}}/payments/TRX-001
+Content-Type: {{contentType}}
+Authorization: {{adminToken}}
+
+{
+  "status": "completed",
+  "confirmation_code": "CONF123"
+}
+
+###
+
+### ====================================
+### BILLING (2 endpoints)
+### ====================================
+
+### 33. GET /billing - Eigen facturering ophalen
+GET {{baseUrl}}/billing
+Authorization: {{adminToken}}
+
+###
+
+### 34. GET /billing/{username} - User facturering ophalen (ADMIN)
+GET {{baseUrl}}/billing/testuser
+Authorization: {{adminToken}}
+
+###
+
+### ====================================
+### EXTRA TEST SCENARIOS
+### ====================================
+
+### Test: Register testuser for admin tests
+POST {{baseUrl}}/register
+Content-Type: {{contentType}}
+
+{
+  "username": "testuser",
+  "password": "test123",
+  "name": "Test User"
+}
+
+###
+
+### Test: Login as testuser
+POST {{baseUrl}}/login
+Content-Type: {{contentType}}
+
+{
+  "username": "testuser",
+  "password": "test123"
+}
+
+@userToken = <TOKEN_FROM_TESTUSER_LOGIN>
+
+###
+
+### Test: Try admin endpoint as regular user (should fail)
+POST {{baseUrl}}/parking-lots
+Content-Type: {{contentType}}
+Authorization: {{userToken}}
+
+{
+  "lot_id": "P999",
+  "name": "Unauthorized Test",
+  "capacity": 50
+}
+
+###
+
+### Test: Missing Authorization header
+GET {{baseUrl}}/profile
+
+###
+
+### Test: Invalid JSON format
+POST {{baseUrl}}/register
+Content-Type: {{contentType}}
+
+{ invalid json }
+
+###
+
+### Test: Empty request body
+POST {{baseUrl}}/vehicles
+Content-Type: {{contentType}}
+Authorization: {{adminToken}}
+
+###
+
+### ====================================
+### NOTITIES VOOR GEBRUIK
+### ====================================
+### 
+### 1. Start server: python server.py
+### 2. Install VS Code REST Client extension
+### 3. Open dit bestand in VS Code
+### 4. Click "Send Request" bij elke test
+### 5. Vervang <TOKEN_FROM_LOGIN_RESPONSE> met actual token
+### 
+### BEKENDE BUGS IN HUIDIGE CODE:
+### - Registration: users.add() ipv users.append() (line 26)
+### - Login: Returns error on first non-match (lines 59-64)
+### - Session stop: Impossible condition len(filtered) < 0 (line 120)
+### 
+### LICENSE PLATES:
+### - Input format: ABC-123 (met streepjes)
+### - Storage format: ABC123 (zonder streepjes)
+### - URL gebruik: /vehicles/ABC123
+### 
+### ADMIN ENDPOINTS (vereisen admin role):
+### - POST /parking-lots
+### - PUT /parking-lots/{id}
+### - DELETE /parking-lots/{id}
+### - DELETE /parking-lots/{id}/sessions/{sid}
+### - GET /vehicles/{username}
+### - POST /payments/refund
+### - GET /payments/{username}
+### - GET /billing/{username}
+###
+### ====================================
