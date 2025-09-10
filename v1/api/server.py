@@ -14,25 +14,27 @@ class RequestHandler(BaseHTTPRequestHandler):
             username = data.get("username")
             password = data.get("password")
             name = data.get("name")
+            role = data.get("role", "USER")
             hashed_password = hashlib.md5(password.encode()).hexdigest()
             users = load_json('data/users.json')
             for user in users:
                 if username == user['username']:
-                    self.send_response(200)
+                    self.send_response(409)
                     self.send_header("Content-type", "application/json")
                     self.end_headers()
-                    self.wfile.write(b"Username already taken")
+                    self.wfile.write(json.dumps({"error": "Username already taken"}).encode('utf-8'))
                     return
-            users.add({
+            users.append({
                 'username': username,
                 'password': hashed_password,
-                'name': name
+                'name': name,
+                'role': role
             })
             save_user_data(users)
             self.send_response(201)
             self.send_header("Content-type", "application/json")
             self.end_headers()
-            self.wfile.write(b"User created")
+            self.wfile.write(json.dumps({"message": "User created successfully"}).encode('utf-8'))
 
 
         elif self.path == "/login":
@@ -43,7 +45,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                 self.send_response(400)
                 self.send_header("Content-type", "application/json")
                 self.end_headers()
-                self.wfile.write(b"Missing credentials")
+                self.wfile.write(json.dumps({"error": "Missing credentials"}).encode('utf-8'))
                 return
             hashed_password = hashlib.md5(password.encode()).hexdigest()
             users = load_json('data/users.json')
@@ -56,16 +58,11 @@ class RequestHandler(BaseHTTPRequestHandler):
                     self.end_headers()
                     self.wfile.write(json.dumps({"message": "User logged in", "session_token": token}).encode('utf-8'))
                     return
-                else:
-                    self.send_response(401)
-                    self.send_header("Content-type", "application/json")
-                    self.end_headers()
-                    self.wfile.write(b"Invalid credentials")
-                    return
+            # If we get here, no user matched
             self.send_response(401)
             self.send_header("Content-type", "application/json")
             self.end_headers()
-            self.wfile.write(b"User not found")
+            self.wfile.write(json.dumps({"error": "Invalid credentials"}).encode('utf-8'))
 
 
         elif self.path.startswith("/parking-lots"):
