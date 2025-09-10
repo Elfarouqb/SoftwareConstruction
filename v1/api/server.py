@@ -17,6 +17,11 @@ class RequestHandler(BaseHTTPRequestHandler):
             role = data.get("role", "USER")
             hashed_password = hashlib.md5(password.encode()).hexdigest()
             users = load_json('data/users.json')
+            
+            # Ensure users is a list, not a single object
+            if not isinstance(users, list):
+                users = []
+            
             for user in users:
                 if username == user['username']:
                     self.send_response(409)
@@ -370,9 +375,19 @@ class RequestHandler(BaseHTTPRequestHandler):
             session_user = get_session(token)
             data  = json.loads(self.rfile.read(int(self.headers.get("Content-Length", -1))))
             data["username"] = session_user["username"]
-            if data["password"]:
+            if "password" in data and data["password"]:
                 data["password"] = hashlib.md5(data["password"].encode()).hexdigest()
-            save_user_data(data)
+            
+            # Load all users, find and update the specific user, then save all users
+            users = load_json('data/users.json')
+            for i, user in enumerate(users):
+                if user["username"] == session_user["username"]:
+                    # Update the user with new data, keeping existing fields if not provided
+                    for key, value in data.items():
+                        users[i][key] = value
+                    break
+            save_user_data(users)
+            
             self.send_response(200)
             self.send_header("Content-type", "application/json")
             self.end_headers()
