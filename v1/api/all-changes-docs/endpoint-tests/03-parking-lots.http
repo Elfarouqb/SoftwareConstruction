@@ -1,0 +1,161 @@
+### ====================================
+### PARKING LOTS ENDPOINTS TESTS
+### ====================================
+### Admin token nodig voor sommige tests!
+
+@baseUrl = http://localhost:8000
+@contentType = application/json
+@userToken = PLAK_HIER_USER_TOKEN
+@adminToken = PLAK_HIER_ADMIN_TOKEN
+
+### ====================================
+### TEST 1: GET ALL PARKING LOTS - Publiek
+### Expected: 200 met lijst (kan leeg zijn {})
+### ====================================
+# @name getAllParkingLots
+GET {{baseUrl}}/parking-lots/
+
+### ====================================
+### TEST 2: GET SPECIFIC PARKING LOT - ID 1
+### Expected: 200 met data OF 404 not found
+### ====================================
+# @name getParkingLot
+GET {{baseUrl}}/parking-lots/1
+
+### ====================================
+### TEST 3: GET NON-EXISTENT PARKING LOT
+### Expected: 404 "Parking lot not found"
+### ====================================
+GET {{baseUrl}}/parking-lots/99999
+
+### ====================================
+### TEST 4: CREATE PARKING LOT - Admin Only
+### Expected: 201 "Parking lot saved under ID: X"
+### ====================================
+# @name createParkingLot
+POST {{baseUrl}}/parking-lots
+Authorization: {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Test Parking {{$timestamp}}",
+  "location": "Test Street 123",
+  "capacity": 100,
+  "reserved": 0,
+  "tariff": 2.50,
+  "daytariff": 15.00
+}
+
+### ====================================
+### TEST 5: CREATE PARKING LOT - User (geen admin)
+### Expected: 403 "Access denied"
+### ====================================
+POST {{baseUrl}}/parking-lots
+Authorization: {{userToken}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Should Fail Parking",
+  "location": "Fail Street",
+  "capacity": 50,
+  "reserved": 0,
+  "tariff": 3.00,
+  "daytariff": 20.00
+}
+
+### ====================================
+### TEST 6: CREATE PARKING LOT - Zonder token
+### Expected: 401 "Unauthorized"
+### ====================================
+POST {{baseUrl}}/parking-lots
+Content-Type: {{contentType}}
+
+{
+  "name": "No Auth Parking",
+  "location": "No Auth Street",
+  "capacity": 25,
+  "reserved": 0,
+  "tariff": 1.50,
+  "daytariff": 10.00
+}
+
+### ====================================
+### TEST 7: UPDATE PARKING LOT - Admin
+### Expected: 200 "Parking lot modified"
+### ====================================
+# @name updateParkingLot
+PUT {{baseUrl}}/parking-lots/1
+Authorization: {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Updated Central Parking",
+  "location": "Updated Main Street 456",
+  "capacity": 150,
+  "reserved": 5,
+  "tariff": 3.50,
+  "daytariff": 25.00
+}
+
+### ====================================
+### TEST 8: UPDATE NON-EXISTENT PARKING LOT
+### Expected: 404 "Parking lot not found"
+### ====================================
+PUT {{baseUrl}}/parking-lots/99999
+Authorization: {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Should Not Exist",
+  "location": "Nowhere",
+  "capacity": 10,
+  "reserved": 0,
+  "tariff": 5.00,
+  "daytariff": 30.00
+}
+
+### ====================================
+### TEST 9: UPDATE PARKING LOT - User (geen admin)
+### Expected: 403 "Access denied"
+### ====================================
+PUT {{baseUrl}}/parking-lots/1
+Authorization: {{userToken}}
+Content-Type: {{contentType}}
+
+{
+  "name": "User Cannot Update",
+  "location": "Forbidden Street",
+  "capacity": 200,
+  "reserved": 0,
+  "tariff": 4.00,
+  "daytariff": 35.00
+}
+
+### ====================================
+### TEST 10: DELETE PARKING LOT - Admin
+### Expected: 200 "Parking lot deleted"
+### LET OP: Verwijdert echt! Test als laatste!
+### ====================================
+# @name deleteParkingLot
+DELETE {{baseUrl}}/parking-lots/2
+Authorization: {{adminToken}}
+
+### ====================================
+### TEST 11: DELETE NON-EXISTENT PARKING LOT
+### Expected: 404 "Parking lot not found"
+### ====================================
+DELETE {{baseUrl}}/parking-lots/99999
+Authorization: {{adminToken}}
+
+### ====================================
+### TEST 12: DELETE PARKING LOT - User
+### Expected: 403 "Access denied"
+### ====================================
+DELETE {{baseUrl}}/parking-lots/1
+Authorization: {{userToken}}
+
+### ====================================
+### TEST 13: VERIFY CHANGES - Check updates
+### Expected: 200 met nieuwe data
+### ====================================
+GET {{baseUrl}}/parking-lots/1

@@ -1,0 +1,261 @@
+### ====================================
+### PAYMENTS ENDPOINTS TESTS
+### ====================================
+### Betalingen en refunds
+
+@baseUrl = http://localhost:8000
+@contentType = application/json
+@userToken = PLAK_HIER_USER_TOKEN
+@adminToken = PLAK_HIER_ADMIN_TOKEN
+
+### ====================================
+### TEST 1: CREATE PAYMENT
+### Expected: 201 met payment details
+### ====================================
+# @name createPayment
+POST {{baseUrl}}/payments
+Authorization: {{userToken}}
+Content-Type: {{contentType}}
+
+{
+  "transaction": "TRX-{{$timestamp}}",
+  "amount": 25.50
+}
+
+### ====================================
+### TEST 2: CREATE PAYMENT - Groot bedrag
+### Expected: 201
+### ====================================
+POST {{baseUrl}}/payments
+Authorization: {{userToken}}
+Content-Type: {{contentType}}
+
+{
+  "transaction": "TRX-BIG-{{$timestamp}}",
+  "amount": 999.99
+}
+
+### ====================================
+### TEST 3: CREATE PAYMENT - Missing transaction
+### Expected: 401 "Required field missing: transaction"
+### ====================================
+POST {{baseUrl}}/payments
+Authorization: {{userToken}}
+Content-Type: {{contentType}}
+
+{
+  "amount": 15.00
+}
+
+### ====================================
+### TEST 4: CREATE PAYMENT - Missing amount
+### Expected: 401 "Required field missing: amount"
+### ====================================
+POST {{baseUrl}}/payments
+Authorization: {{userToken}}
+Content-Type: {{contentType}}
+
+{
+  "transaction": "TRX-NO-AMOUNT"
+}
+
+### ====================================
+### TEST 5: CREATE PAYMENT - Zonder token
+### Expected: 401 "Unauthorized"
+### ====================================
+POST {{baseUrl}}/payments
+Content-Type: {{contentType}}
+
+{
+  "transaction": "TRX-NO-AUTH",
+  "amount": 10.00
+}
+
+### ====================================
+### TEST 6: CREATE REFUND - Admin only
+### Expected: 201 met negatief bedrag
+### ====================================
+# @name createRefund
+POST {{baseUrl}}/payments/refund
+Authorization: {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "amount": 10.00,
+  "transaction": "TRX-REFUND-{{$timestamp}}",
+  "coupled_to": "TRX-ORIGINAL"
+}
+
+### ====================================
+### TEST 7: CREATE REFUND - Zonder transaction
+### Expected: 201 (genereert automatisch transaction)
+### ====================================
+POST {{baseUrl}}/payments/refund
+Authorization: {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "amount": 5.00,
+  "coupled_to": "TRX-ORIGINAL-2"
+}
+
+### ====================================
+### TEST 8: CREATE REFUND - User (geen admin)
+### Expected: 403 "Access denied"
+### ====================================
+POST {{baseUrl}}/payments/refund
+Authorization: {{userToken}}
+Content-Type: {{contentType}}
+
+{
+  "amount": 15.00
+}
+
+### ====================================
+### TEST 9: CREATE REFUND - Missing amount
+### Expected: 401 "Required field missing: amount"
+### ====================================
+POST {{baseUrl}}/payments/refund
+Authorization: {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "transaction": "TRX-REFUND-NO-AMOUNT"
+}
+
+### ====================================
+### TEST 10: GET MY PAYMENTS
+### Expected: 200 met array van payments
+### ====================================
+# @name getMyPayments
+GET {{baseUrl}}/payments
+Authorization: {{userToken}}
+
+### ====================================
+### TEST 11: GET MY PAYMENTS - Zonder token
+### Expected: 401 "Unauthorized"
+### ====================================
+GET {{baseUrl}}/payments
+
+### ====================================
+### TEST 12: GET USER PAYMENTS - Admin only
+### Expected: 200 met user's payments
+### Note: Lijkt bug te zijn (checkt eigen username ipv parameter)
+### ====================================
+# @name getUserPayments
+GET {{baseUrl}}/payments/testuser
+Authorization: {{adminToken}}
+
+### ====================================
+### TEST 13: GET USER PAYMENTS - Regular user
+### Expected: 403 "Access denied"
+### ====================================
+GET {{baseUrl}}/payments/anotheruser
+Authorization: {{userToken}}
+
+### ====================================
+### TEST 14: COMPLETE PAYMENT - Met validatie
+### Expected: 200 met completed payment
+### ====================================
+# @name completePayment
+PUT {{baseUrl}}/payments/TRX-{{$timestamp}}
+Authorization: {{userToken}}
+Content-Type: {{contentType}}
+
+{
+  "t_data": {
+    "card_last4": "1234",
+    "method": "credit_card",
+    "bank": "Test Bank"
+  },
+  "validation": "REPLACE_WITH_ACTUAL_HASH"
+}
+
+### ====================================
+### TEST 15: COMPLETE PAYMENT - Wrong validation
+### Expected: 401 "Validation failed"
+### ====================================
+PUT {{baseUrl}}/payments/TRX-{{$timestamp}}
+Authorization: {{userToken}}
+Content-Type: {{contentType}}
+
+{
+  "t_data": {
+    "card_last4": "5678",
+    "method": "debit_card"
+  },
+  "validation": "WRONG_HASH_12345"
+}
+
+### ====================================
+### TEST 16: COMPLETE PAYMENT - Missing t_data
+### Expected: 401 "Required field missing: t_data"
+### ====================================
+PUT {{baseUrl}}/payments/TRX-{{$timestamp}}
+Authorization: {{userToken}}
+Content-Type: {{contentType}}
+
+{
+  "validation": "SOME_HASH"
+}
+
+### ====================================
+### TEST 17: COMPLETE PAYMENT - Missing validation
+### Expected: 401 "Required field missing: validation"
+### ====================================
+PUT {{baseUrl}}/payments/TRX-{{$timestamp}}
+Authorization: {{userToken}}
+Content-Type: {{contentType}}
+
+{
+  "t_data": {
+    "card_last4": "9999",
+    "method": "paypal"
+  }
+}
+
+### ====================================
+### TEST 18: COMPLETE NON-EXISTENT PAYMENT
+### Expected: 404 "Payment not found"
+### ====================================
+PUT {{baseUrl}}/payments/TRX-GHOST-999999
+Authorization: {{userToken}}
+Content-Type: {{contentType}}
+
+{
+  "t_data": {
+    "card_last4": "0000",
+    "method": "cash"
+  },
+  "validation": "HASH_FOR_GHOST"
+}
+
+### ====================================
+### TEST 19: COMPLETE FLOW - Create and Complete
+### ====================================
+### Create payment
+POST {{baseUrl}}/payments
+Authorization: {{userToken}}
+Content-Type: {{contentType}}
+
+{
+  "transaction": "TRX-FLOW-{{$timestamp}}",
+  "amount": 50.00
+}
+
+###
+
+### Complete payment (gebruik hash uit create response)
+PUT {{baseUrl}}/payments/TRX-FLOW-{{$timestamp}}
+Authorization: {{userToken}}
+Content-Type: {{contentType}}
+
+{
+  "t_data": {
+    "card_last4": "4242",
+    "method": "credit_card",
+    "bank": "Flow Bank",
+    "country": "NL"
+  },
+  "validation": "REPLACE_WITH_HASH_FROM_CREATE"
+}

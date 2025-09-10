@@ -1,0 +1,95 @@
+==============================================================
+COMPLETE API ENDPOINTS LIST - ALLE 38 ENDPOINTS
+==============================================================
+
+AUTHENTICATION (3 endpoints)
+----------------------------
+POST   /register                           - Nieuwe gebruiker registreren
+POST   /login                              - Inloggen en token krijgen
+GET    /logout                             - Uitloggen
+
+USER PROFILE (2 endpoints)
+---------------------------
+GET    /profile                            - Profiel ophalen
+PUT    /profile                            - Profiel updaten
+
+PARKING LOTS (5 endpoints)
+---------------------------
+GET    /parking-lots/                      - Alle parkeerplaatsen ophalen (PUBLIC)
+GET    /parking-lots/{id}                  - Specifieke parkeerplaats ophalen
+POST   /parking-lots                       - Nieuwe parkeerplaats maken (ADMIN)
+PUT    /parking-lots/{id}                  - Parkeerplaats updaten (ADMIN)
+DELETE /parking-lots/{id}                  - Parkeerplaats verwijderen (ADMIN)
+
+PARKING SESSIONS (5 endpoints)
+-------------------------------
+POST   /parking-lots/{id}/sessions/start   - Start parkeersessie
+POST   /parking-lots/{id}/sessions/stop    - Stop parkeersessie
+GET    /parking-lots/{id}/sessions         - Alle sessies ophalen
+GET    /parking-lots/{id}/sessions/{sid}   - Specifieke sessie ophalen
+DELETE /parking-lots/{id}/sessions/{sid}   - Sessie verwijderen (ADMIN)
+
+RESERVATIONS (4 endpoints)
+--------------------------
+POST   /reservations                       - Nieuwe reservering maken
+GET    /reservations/{id}                  - Reservering ophalen
+PUT    /reservations/{id}                  - Reservering updaten
+DELETE /reservations/{id}                  - Reservering verwijderen
+
+VEHICLES (8 endpoints)
+----------------------
+POST   /vehicles                           - Nieuw voertuig registreren
+POST   /vehicles/{id}/entry                - Voertuig entry registreren
+GET    /vehicles                           - Eigen voertuigen ophalen
+GET    /vehicles/{username}                - User voertuigen ophalen (ADMIN)
+GET    /vehicles/{id}/reservations         - Voertuig reserveringen ophalen
+GET    /vehicles/{id}/history              - Voertuig geschiedenis ophalen
+PUT    /vehicles/{id}                      - Voertuig updaten
+DELETE /vehicles/{id}                      - Voertuig verwijderen
+
+PAYMENTS (5 endpoints)
+----------------------
+POST   /payments                           - Nieuwe betaling maken
+POST   /payments/refund                    - Refund maken (ADMIN)
+GET    /payments                           - Eigen betalingen ophalen
+GET    /payments/{username}                - User betalingen ophalen (ADMIN)
+PUT    /payments/{transaction_id}          - Betaling voltooien
+
+BILLING (2 endpoints)
+---------------------
+GET    /billing                            - Eigen facturering ophalen
+GET    /billing/{username}                 - User facturering ophalen (ADMIN)
+
+==============================================================
+TOTAAL: 38 ENDPOINTS
+==============================================================
+
+NOTITIES VOOR GEBRUIK:
+----------------------
+- {id} = Parking lot ID (bijv. 1, 2, 3)
+- {sid} = Session ID
+- {username} = Gebruikersnaam
+- {transaction_id} = Transaction ID (bijv. TRX-001)
+
+Voor vehicles: License plates worden opgeslagen ZONDER streepjes!
+- Input: ABC-123
+- Opslag: ABC123
+- URL gebruik: /vehicles/ABC123
+
+AUTHENTICATIE:
+--------------
+Meeste endpoints vereisen Authorization header met session token:
+Authorization: {session_token}
+
+ADMIN ENDPOINTS (vereisen admin role):
+---------------------------------------
+- POST /parking-lots
+- PUT /parking-lots/{id}
+- DELETE /parking-lots/{id}
+- DELETE /parking-lots/{id}/sessions/{sid}
+- GET /vehicles/{username}
+- POST /payments/refund
+- GET /payments/{username}
+- GET /billing/{username}
+
+==============================================================

@@ -1,0 +1,118 @@
+### ====================================
+### AUTHENTICATION ENDPOINTS TESTS
+### ====================================
+### Gebruik: Klik op "Send Request" boven elke test
+### Server moet draaien op: http://localhost:8000
+
+@baseUrl = http://localhost:8000
+@contentType = application/json
+
+### ====================================
+### TEST 1: REGISTER - Nieuwe gebruiker aanmaken
+### Expected: 201 Created of 200 "Username already taken"
+### ====================================
+# @name register
+POST {{baseUrl}}/register
+Content-Type: {{contentType}}
+
+{
+  "username": "testuser_{{$timestamp}}",
+  "password": "password123",
+  "name": "Test User"
+}
+
+### ====================================
+### TEST 2: REGISTER - Duplicate username test
+### Expected: 200 "Username already taken"
+### ====================================
+POST {{baseUrl}}/register
+Content-Type: {{contentType}}
+
+{
+  "username": "admin",
+  "password": "admin123",
+  "name": "Admin User"
+}
+
+### ====================================
+### TEST 3: REGISTER - Missing fields test
+### Expected: Error (fields missing)
+### ====================================
+POST {{baseUrl}}/register
+Content-Type: {{contentType}}
+
+{
+  "username": "incomplete_user"
+}
+
+### ====================================
+### TEST 4: LOGIN - Correcte credentials
+### Expected: 200 met session_token
+### BELANGRIJK: Kopieer de token uit response!
+### ====================================
+# @name login
+POST {{baseUrl}}/login
+Content-Type: {{contentType}}
+
+{
+  "username": "admin",
+  "password": "admin123"
+}
+
+### ====================================
+### TEST 5: LOGIN - Verkeerde password
+### Expected: 401 "Invalid credentials"
+### ====================================
+POST {{baseUrl}}/login
+Content-Type: {{contentType}}
+
+{
+  "username": "admin",
+  "password": "wrongpassword"
+}
+
+### ====================================
+### TEST 6: LOGIN - Niet bestaande user
+### Expected: 401 "User not found"
+### ====================================
+POST {{baseUrl}}/login
+Content-Type: {{contentType}}
+
+{
+  "username": "nonexistent_user",
+  "password": "password123"
+}
+
+### ====================================
+### TEST 7: LOGIN - Missing credentials
+### Expected: 400 "Missing credentials"
+### ====================================
+POST {{baseUrl}}/login
+Content-Type: {{contentType}}
+
+{
+  "username": "testuser"
+}
+
+### ====================================
+### TEST 8: LOGOUT - Met geldige token
+### Expected: 200 "User logged out"
+### Plak hier je token van login!
+### ====================================
+@token = PLAK_HIER_JE_TOKEN_VAN_LOGIN
+
+GET {{baseUrl}}/logout
+Authorization: {{token}}
+
+### ====================================
+### TEST 9: LOGOUT - Zonder token
+### Expected: 400 "Invalid session token"
+### ====================================
+GET {{baseUrl}}/logout
+
+### ====================================
+### TEST 10: LOGOUT - Met ongeldige token
+### Expected: 400 "Invalid session token"
+### ====================================
+GET {{baseUrl}}/logout
+Authorization: invalid_token_12345

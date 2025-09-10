@@ -1,0 +1,241 @@
+### ====================================
+### VEHICLES ENDPOINTS TESTS
+### ====================================
+### Voertuig management
+
+@baseUrl = http://localhost:8000
+@contentType = application/json
+@userToken = PLAK_HIER_USER_TOKEN
+@adminToken = PLAK_HIER_ADMIN_TOKEN
+
+### ====================================
+### TEST 1: REGISTER VEHICLE - Nieuw voertuig
+### Expected: 201 met vehicle details
+### ====================================
+# @name registerVehicle
+POST {{baseUrl}}/vehicles
+Authorization: {{userToken}}
+Content-Type: {{contentType}}
+
+{
+  "name": "My Tesla Model 3",
+  "license_plate": "TSL-123"
+}
+
+### ====================================
+### TEST 2: REGISTER VEHICLE - Duplicate
+### Expected: 401 "Vehicle already exists"
+### ====================================
+POST {{baseUrl}}/vehicles
+Authorization: {{userToken}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Duplicate Car",
+  "license_plate": "TSL-123"
+}
+
+### ====================================
+### TEST 3: REGISTER VEHICLE - Missing fields
+### Expected: 401 "Required field missing"
+### ====================================
+POST {{baseUrl}}/vehicles
+Authorization: {{userToken}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Incomplete Vehicle"
+}
+
+### ====================================
+### TEST 4: REGISTER VEHICLE - Zonder token
+### Expected: 401 "Unauthorized"
+### ====================================
+POST {{baseUrl}}/vehicles
+Content-Type: {{contentType}}
+
+{
+  "name": "No Auth Car",
+  "license_plate": "NO-AUTH-99"
+}
+
+### ====================================
+### TEST 5: VEHICLE ENTRY - Parkeerplaats entry
+### Expected: 200 "Accepted"
+### Note: License plate zonder streepjes!
+### ====================================
+# @name vehicleEntry
+POST {{baseUrl}}/vehicles/TSL123/entry
+Authorization: {{userToken}}
+Content-Type: {{contentType}}
+
+{
+  "parkinglot": "1"
+}
+
+### ====================================
+### TEST 6: VEHICLE ENTRY - Onbekend voertuig
+### Expected: 401 "Vehicle does not exist"
+### ====================================
+POST {{baseUrl}}/vehicles/UNKNOWN999/entry
+Authorization: {{userToken}}
+Content-Type: {{contentType}}
+
+{
+  "parkinglot": "1"
+}
+
+### ====================================
+### TEST 7: VEHICLE ENTRY - Missing parkinglot
+### Expected: 401 "Required field missing"
+### ====================================
+POST {{baseUrl}}/vehicles/TSL123/entry
+Authorization: {{userToken}}
+Content-Type: {{contentType}}
+
+{}
+
+### ====================================
+### TEST 8: GET MY VEHICLES
+### Expected: 200 met lijst van vehicles
+### ====================================
+# @name getMyVehicles
+GET {{baseUrl}}/vehicles
+Authorization: {{userToken}}
+
+### ====================================
+### TEST 9: GET MY VEHICLES - Zonder token
+### Expected: 401 "Unauthorized"
+### ====================================
+GET {{baseUrl}}/vehicles
+
+### ====================================
+### TEST 10: GET USER VEHICLES - Admin only
+### Expected: 200 met user's vehicles
+### ====================================
+# @name getUserVehicles
+GET {{baseUrl}}/vehicles/testuser
+Authorization: {{adminToken}}
+
+### ====================================
+### TEST 11: GET USER VEHICLES - Regular user
+### Expected: 200 OF 403 afhankelijk van implementatie
+### ====================================
+GET {{baseUrl}}/vehicles/anotheruser
+Authorization: {{userToken}}
+
+### ====================================
+### TEST 12: GET USER VEHICLES - Non-existent user
+### Expected: 404 "User not found"
+### ====================================
+GET {{baseUrl}}/vehicles/nonexistentuser999
+Authorization: {{adminToken}}
+
+### ====================================
+### TEST 13: GET VEHICLE RESERVATIONS
+### Expected: 200 met array (mogelijk leeg [])
+### ====================================
+# @name getVehicleReservations
+GET {{baseUrl}}/vehicles/TSL123/reservations
+Authorization: {{userToken}}
+
+### ====================================
+### TEST 14: GET VEHICLE HISTORY
+### Expected: 200 met array (mogelijk leeg [])
+### ====================================
+# @name getVehicleHistory
+GET {{baseUrl}}/vehicles/TSL123/history
+Authorization: {{userToken}}
+
+### ====================================
+### TEST 15: UPDATE VEHICLE - Naam wijzigen
+### Expected: 200 met updated vehicle
+### ====================================
+# @name updateVehicle
+PUT {{baseUrl}}/vehicles/TSL123
+Authorization: {{userToken}}
+Content-Type: {{contentType}}
+
+{
+  "name": "My Updated Tesla Model S"
+}
+
+### ====================================
+### TEST 16: UPDATE VEHICLE - Missing name
+### Expected: 401 "Required field missing"
+### ====================================
+PUT {{baseUrl}}/vehicles/TSL123
+Authorization: {{userToken}}
+Content-Type: {{contentType}}
+
+{}
+
+### ====================================
+### TEST 17: UPDATE NON-EXISTENT VEHICLE
+### Expected: Creates new OR returns error
+### ====================================
+PUT {{baseUrl}}/vehicles/NEWCAR999
+Authorization: {{userToken}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Brand New Car",
+  "license_plate": "NEW-CAR-999"
+}
+
+### ====================================
+### TEST 18: DELETE VEHICLE
+### Expected: 200 "Deleted"
+### ====================================
+# @name deleteVehicle
+DELETE {{baseUrl}}/vehicles/TSL123
+Authorization: {{userToken}}
+
+### ====================================
+### TEST 19: DELETE NON-EXISTENT VEHICLE
+### Expected: 403 "Vehicle not found"
+### ====================================
+DELETE {{baseUrl}}/vehicles/GHOST999
+Authorization: {{userToken}}
+
+### ====================================
+### TEST 20: DELETE VEHICLE - Zonder token
+### Expected: 401 "Unauthorized"
+### ====================================
+DELETE {{baseUrl}}/vehicles/TSL123
+
+### ====================================
+### TEST 21: COMPLETE FLOW - Register, Update, Delete
+### ====================================
+### Register
+POST {{baseUrl}}/vehicles
+Authorization: {{userToken}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Flow Test Car {{$timestamp}}",
+  "license_plate": "FLW-{{$timestamp}}"
+}
+
+###
+
+### Get all vehicles
+GET {{baseUrl}}/vehicles
+Authorization: {{userToken}}
+
+###
+
+### Update (gebruik ID zonder streepjes)
+PUT {{baseUrl}}/vehicles/FLW{{$timestamp}}
+Authorization: {{userToken}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Flow Test Updated {{$timestamp}}"
+}
+
+###
+
+### Delete
+DELETE {{baseUrl}}/vehicles/FLW{{$timestamp}}
+Authorization: {{userToken}}

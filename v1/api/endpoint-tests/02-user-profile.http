@@ -1,0 +1,96 @@
+### ====================================
+### USER PROFILE ENDPOINTS TESTS
+### ====================================
+### EERST: Login via 01-authentication.http en kopieer token!
+
+@baseUrl = http://localhost:8000
+@contentType = application/json
+@token = PLAK_HIER_JE_SESSION_TOKEN
+
+### ====================================
+### TEST 1: GET PROFILE - Met geldige token
+### Expected: 200 met user data
+### ====================================
+# @name getProfile
+GET {{baseUrl}}/profile
+Authorization: {{token}}
+
+### ====================================
+### TEST 2: GET PROFILE - Zonder token
+### Expected: 401 "Unauthorized"
+### ====================================
+GET {{baseUrl}}/profile
+
+### ====================================
+### TEST 3: GET PROFILE - Met ongeldige token
+### Expected: 401 "Unauthorized"
+### ====================================
+GET {{baseUrl}}/profile
+Authorization: invalid_token_xyz
+
+### ====================================
+### TEST 4: UPDATE PROFILE - Naam wijzigen
+### Expected: 200 "User updated successfully"
+### ====================================
+# @name updateProfile
+PUT {{baseUrl}}/profile
+Authorization: {{token}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Updated Test User {{$timestamp}}",
+  "password": "password123"
+}
+
+### ====================================
+### TEST 5: UPDATE PROFILE - Alleen naam
+### Expected: 200 "User updated successfully"
+### ====================================
+PUT {{baseUrl}}/profile
+Authorization: {{token}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Only Name Update"
+}
+
+### ====================================
+### TEST 6: UPDATE PROFILE - Alleen password
+### Expected: 200 "User updated successfully"
+### ====================================
+PUT {{baseUrl}}/profile
+Authorization: {{token}}
+Content-Type: {{contentType}}
+
+{
+  "password": "newpassword456"
+}
+
+### ====================================
+### TEST 7: UPDATE PROFILE - Zonder token
+### Expected: 401 "Unauthorized"
+### ====================================
+PUT {{baseUrl}}/profile
+Content-Type: {{contentType}}
+
+{
+  "name": "Should Fail"
+}
+
+### ====================================
+### TEST 8: UPDATE PROFILE - Lege body
+### Expected: 200 (mogelijk met warnings)
+### ====================================
+PUT {{baseUrl}}/profile
+Authorization: {{token}}
+Content-Type: {{contentType}}
+
+{}
+
+### ====================================
+### TEST 9: VERIFY PROFILE UPDATE
+### Check of updates zijn doorgevoerd
+### Expected: 200 met nieuwe data
+### ====================================
+GET {{baseUrl}}/profile
+Authorization: {{token}}

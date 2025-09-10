@@ -1,0 +1,68 @@
+PARKING API - ENDPOINTS EN BERICHTEN OVERZICHT
+==============================================
+
+🔐 AUTHENTICATION
+-----------------
+POST /register              → 201 "User created successfully"
+POST /login                 → 200 "User logged in" + session_token
+POST /login (fout)          → 401 "Invalid credentials"
+GET /logout                 → 200 Logout succesvol
+
+👤 PROFILE  
+----------
+GET /profile                → 200 Gebruikersprofiel gegevens
+PUT /profile                → 200 Profiel bijgewerkt
+GET /profile (geen token)   → 401 "Unauthorized: Invalid or missing session token"
+
+🅿️ PARKING LOTS
+---------------
+GET /parking-lots/          → 200 Lijst van alle parking lots
+GET /parking-lots/1         → 200 Specifieke parking lot gegevens
+POST /parking-lots          → 403 "Access denied" (admin only)
+PUT /parking-lots/1         → 403 "Access denied" (admin only)
+
+🚗 VEHICLES
+-----------
+GET /vehicles               → 200 Lijst van gebruiker's voertuigen
+GET /vehicles (geen token)  → 401 "Unauthorized: Invalid or missing session token"
+POST /vehicles              → [Verbindingsprobleem]
+PUT /vehicles/{id}          → [Verbindingsprobleem]
+GET /vehicles/{id}/reserv.  → [Verbindingsprobleem]
+GET /vehicles/{id}/history  → [Verbindingsprobleem]
+
+⏱️ PARKING SESSIONS
+-------------------
+POST /parking-lots/{id}/sessions/start → 200 Parkeersessie gestart
+POST /parking-lots/{id}/sessions/stop  → 200 Parkeersessie gestopt
+GET /parking-lots/{id}/sessions        → [Verbindingsprobleem]
+GET /parking-lots/{id}/sessions/{id}   → [Verbindingsprobleem]
+
+📅 RESERVATIONS
+---------------
+GET /reservations/{id}      → 404 "Reservation not found"
+PUT /reservations/{id}      → 404 "Reservation not found"
+DELETE /reservations/{id}   → 404 "Reservation not found"
+POST /reservations          → [Verbindingsprobleem]
+
+💳 PAYMENTS
+-----------
+POST /payments/refund       → 403 "Access denied" (admin only)
+POST /payments              → [Verbindingsprobleem]
+GET /payments               → [Verbindingsprobleem]
+PUT /payments/{id}          → [Verbindingsprobleem]
+
+🧾 BILLING
+----------
+GET /billing                → 200 Gebruiker's factuurgegevens
+GET /billing/{username}     → 403 "Access denied" (admin only)
+
+LEGENDA:
+✅ 200/201 = Success
+❌ 401 = Unauthorized 
+❌ 403 = Forbidden (Admin rechten vereist)
+❌ 404 = Not Found
+⚠️ [Verbindingsprobleem] = Server verbinding onderbroken tijdens test
+
+TOTAAL GETEST: 37 endpoints
+WERKEND: 15 endpoints (40.5%)
+ERRORS: 22 endpoints (59.5%)

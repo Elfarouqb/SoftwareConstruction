@@ -1,0 +1,235 @@
+### ====================================
+### RESERVATIONS ENDPOINTS TESTS
+### ====================================
+### Reserveringen voor parkeerplaatsen
+
+@baseUrl = http://localhost:8000
+@contentType = application/json
+@userToken = PLAK_HIER_USER_TOKEN
+@adminToken = PLAK_HIER_ADMIN_TOKEN
+
+### ====================================
+### TEST 1: CREATE RESERVATION - User
+### Expected: 201 met reservation details
+### ====================================
+# @name createReservation
+POST {{baseUrl}}/reservations
+Authorization: {{userToken}}
+Content-Type: {{contentType}}
+
+{
+  "licenseplate": "RES-123",
+  "startdate": "2025-01-20",
+  "enddate": "2025-01-21",
+  "parkinglot": "1"
+}
+
+### ====================================
+### TEST 2: CREATE RESERVATION - Admin voor user
+### Expected: 201 (admin kan user field toevoegen)
+### ====================================
+POST {{baseUrl}}/reservations
+Authorization: {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "licenseplate": "ADMIN-RES-456",
+  "startdate": "2025-01-22",
+  "enddate": "2025-01-23",
+  "parkinglot": "1",
+  "user": "testuser"
+}
+
+### ====================================
+### TEST 3: CREATE RESERVATION - Missing fields
+### Expected: 401 "Required field missing"
+### ====================================
+POST {{baseUrl}}/reservations
+Authorization: {{userToken}}
+Content-Type: {{contentType}}
+
+{
+  "licenseplate": "INCOMPLETE-789",
+  "startdate": "2025-01-24"
+}
+
+### ====================================
+### TEST 4: CREATE RESERVATION - Invalid parking lot
+### Expected: 404 "Parking lot not found"
+### ====================================
+POST {{baseUrl}}/reservations
+Authorization: {{userToken}}
+Content-Type: {{contentType}}
+
+{
+  "licenseplate": "INVALID-LOT",
+  "startdate": "2025-01-25",
+  "enddate": "2025-01-26",
+  "parkinglot": "99999"
+}
+
+### ====================================
+### TEST 5: CREATE RESERVATION - Zonder token
+### Expected: 401 "Unauthorized"
+### ====================================
+POST {{baseUrl}}/reservations
+Content-Type: {{contentType}}
+
+{
+  "licenseplate": "NO-AUTH",
+  "startdate": "2025-01-27",
+  "enddate": "2025-01-28",
+  "parkinglot": "1"
+}
+
+### ====================================
+### TEST 6: GET RESERVATION - Eigen reservering
+### Expected: 200 met reservation details
+### ====================================
+# @name getReservation
+GET {{baseUrl}}/reservations/1
+Authorization: {{userToken}}
+
+### ====================================
+### TEST 7: GET RESERVATION - Andere user (geen admin)
+### Expected: 403 "Access denied"
+### ====================================
+GET {{baseUrl}}/reservations/2
+Authorization: {{userToken}}
+
+### ====================================
+### TEST 8: GET RESERVATION - Admin
+### Expected: 200 (admin kan alles zien)
+### ====================================
+GET {{baseUrl}}/reservations/1
+Authorization: {{adminToken}}
+
+### ====================================
+### TEST 9: GET NON-EXISTENT RESERVATION
+### Expected: 404 "Reservation not found"
+### ====================================
+GET {{baseUrl}}/reservations/99999
+Authorization: {{userToken}}
+
+### ====================================
+### TEST 10: UPDATE RESERVATION - Eigen
+### Expected: 200 met updated reservation
+### ====================================
+# @name updateReservation
+PUT {{baseUrl}}/reservations/1
+Authorization: {{userToken}}
+Content-Type: {{contentType}}
+
+{
+  "licenseplate": "RES-123-UPDATED",
+  "startdate": "2025-01-20",
+  "enddate": "2025-01-22",
+  "parkinglot": "1"
+}
+
+### ====================================
+### TEST 11: UPDATE RESERVATION - Admin voor user
+### Expected: 200 (admin kan user field zetten)
+### ====================================
+PUT {{baseUrl}}/reservations/1
+Authorization: {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "licenseplate": "ADMIN-UPDATE",
+  "startdate": "2025-01-20",
+  "enddate": "2025-01-23",
+  "parkinglot": "1",
+  "user": "anotheruser"
+}
+
+### ====================================
+### TEST 12: UPDATE RESERVATION - Missing fields
+### Expected: 401 "Required field missing"
+### ====================================
+PUT {{baseUrl}}/reservations/1
+Authorization: {{userToken}}
+Content-Type: {{contentType}}
+
+{
+  "licenseplate": "PARTIAL-UPDATE"
+}
+
+### ====================================
+### TEST 13: UPDATE NON-EXISTENT RESERVATION
+### Expected: 404 "Reservation not found"
+### ====================================
+PUT {{baseUrl}}/reservations/99999
+Authorization: {{userToken}}
+Content-Type: {{contentType}}
+
+{
+  "licenseplate": "GHOST-RES",
+  "startdate": "2025-01-30",
+  "enddate": "2025-01-31",
+  "parkinglot": "1"
+}
+
+### ====================================
+### TEST 14: DELETE RESERVATION - Eigen
+### Expected: 200 "Deleted"
+### ====================================
+# @name deleteReservation
+DELETE {{baseUrl}}/reservations/3
+Authorization: {{userToken}}
+
+### ====================================
+### TEST 15: DELETE RESERVATION - Admin
+### Expected: 200 (admin kan alles verwijderen)
+### ====================================
+DELETE {{baseUrl}}/reservations/4
+Authorization: {{adminToken}}
+
+### ====================================
+### TEST 16: DELETE RESERVATION - Andere user
+### Expected: 403 "Access denied"
+### ====================================
+DELETE {{baseUrl}}/reservations/2
+Authorization: {{userToken}}
+
+### ====================================
+### TEST 17: DELETE NON-EXISTENT RESERVATION
+### Expected: 404 "Reservation not found"
+### ====================================
+DELETE {{baseUrl}}/reservations/99999
+Authorization: {{userToken}}
+
+### ====================================
+### TEST 18: COMPLETE FLOW - Create, Update, Delete
+### ====================================
+### Create
+POST {{baseUrl}}/reservations
+Authorization: {{userToken}}
+Content-Type: {{contentType}}
+
+{
+  "licenseplate": "FLOW-{{$timestamp}}",
+  "startdate": "2025-02-01",
+  "enddate": "2025-02-02",
+  "parkinglot": "1"
+}
+
+###
+
+### Update (gebruik reservation ID uit create response)
+PUT {{baseUrl}}/reservations/5
+Authorization: {{userToken}}
+Content-Type: {{contentType}}
+
+{
+  "licenseplate": "FLOW-UPDATED-{{$timestamp}}",
+  "startdate": "2025-02-01",
+  "enddate": "2025-02-03",
+  "parkinglot": "1"
+}
+
+###
+
+### Delete
+DELETE {{baseUrl}}/reservations/5
+Authorization: {{userToken}}

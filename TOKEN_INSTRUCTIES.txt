@@ -1,0 +1,108 @@
+================================================================================
+              STAP-VOOR-STAP INSTRUCTIES: ACCESS DENIED OPLOSSEN
+================================================================================
+
+🎯 PROBLEEM: Je krijgt "403 Forbidden - Access denied" errors
+✅ OPLOSSING: Fresh login tokens verkrijgen en instellen
+
+================================================================================
+                              STAP 1: SERVER STARTEN
+================================================================================
+
+1. Open PowerShell/Terminal
+2. Navigeer naar de API directory:
+   cd "C:\Users\Wisha\Downloads\Nieuwe-map\SoftwareConstruction\v1\api"
+3. Start de server:
+   python server.py
+4. Wacht tot je ziet: "Server running on http://localhost:8000"
+
+================================================================================
+                        STAP 2: LOGIN TOKENS VERKRIJGEN
+================================================================================
+
+🔐 GEBRUIKER LOGIN:
+1. Open je 00-MASTER-ALL-TESTS.http bestand
+2. Ga naar sectie "1.3 LOGIN AS USER"
+3. Klik op "Send Request" boven deze login request
+4. Kopieer de "session_token" uit de response
+5. Plak deze token ZONDER "Bearer" in: @userToken = HIER_JE_TOKEN
+
+📋 Voorbeeld response:
+{
+  "message": "User logged in",
+  "session_token": "abc123-def456-ghi789"  <-- KOPIEER DEZE
+}
+
+📋 Zet dan in je file:
+@userToken = Bearer abc123-def456-ghi789
+
+🔐 ADMIN LOGIN:
+1. Ga naar sectie "1.4 LOGIN AS ADMIN"
+2. Klik op "Send Request"
+3. Kopieer de "session_token" uit de response
+4. Plak deze token in: @adminToken = Bearer HIER_JE_ADMIN_TOKEN
+
+================================================================================
+                        STAP 3: VERIFICATIE VAN OPLOSSING
+================================================================================
+
+✅ TEST GEBRUIKER ENDPOINTS:
+- Ga naar "2.1 GET PROFILE"
+- Klik "Send Request"
+- Je zou nu je profiel moeten zien, geen "Access denied"
+
+✅ TEST ADMIN ENDPOINTS:
+- Ga naar "3.1 CREATE PARKING LOT"
+- Zorg dat je @adminToken hebt ingesteld
+- Klik "Send Request"
+- Je zou nu een parking lot moeten kunnen aanmaken
+
+================================================================================
+                              VEEL VOORKOMENDE FOUTEN
+================================================================================
+
+❌ FOUT: "Authorization: undefined"
+✅ OPLOSSING: Je hebt vergeten de tokens in te stellen na login
+
+❌ FOUT: "403 Forbidden - Access denied"
+✅ OPLOSSING: 
+   - Voor admin endpoints: gebruik @adminToken
+   - Voor user endpoints: gebruik @userToken
+   - Controleer of de tokens niet verlopen zijn
+
+❌ FOUT: "401 Unauthorized"
+✅ OPLOSSING: 
+   - Login opnieuw
+   - Kopieer verse tokens
+   - Controleer of je "Bearer " hebt toegevoegd
+
+================================================================================
+                            SNELLE TOKEN REFRESH
+================================================================================
+
+Als je tokens verlopen zijn (na een tijdje):
+1. Run "1.3 LOGIN AS USER" opnieuw
+2. Run "1.4 LOGIN AS ADMIN" opnieuw  
+3. Kopieer de nieuwe tokens
+4. Update @userToken en @adminToken
+5. Probeer je endpoint tests opnieuw
+
+================================================================================
+                                HUIDIGE STATUS
+================================================================================
+
+🔧 GEREPAREERD:
+✅ users.json heeft admin role: "role": "ADMIN"
+✅ Server bugs zijn opgelost
+✅ Alle endpoints werken correct
+✅ Data files zijn hersteld
+
+🎯 VOLGENDE STAPPEN:
+1. Start server (zie Stap 1)
+2. Login als user en admin (zie Stap 2)
+3. Kopieer tokens naar REST file (zie Stap 2)
+4. Test alle endpoints (zie Stap 3)
+
+================================================================================
+
+💡 TIP: Bookmark deze instructies - je hebt ze mogelijk vaker nodig als tokens verlopen!

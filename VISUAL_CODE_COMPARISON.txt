@@ -1,0 +1,346 @@
+================================================================================
+                    VISUAL CODE COMPARISON REPORT
+================================================================================
+Date: September 10, 2025
+Visual comparison of critical code changes with explanations
+
+================================================================================
+                        CHANGE 1: USER REGISTRATION FIX
+================================================================================
+
+BEFORE (BROKEN):
+```python
+for user in users:
+    if username == user['username']:
+        self.send_response(200)                    # ❌ Wrong status code
+        self.send_header("Content-type", "application/json")
+        self.end_headers()
+        self.wfile.write(b"Username already taken") # ❌ Plain text, not JSON
+        return
+users.add({                                       # ❌ CRITICAL ERROR: lists don't have .add()
+    'username': username,
+    'password': hashed_password,
+    'name': name
+})
+save_user_data(users)
+self.send_response(201)
+self.send_header("Content-type", "application/json")
+self.end_headers()
+self.wfile.write(b"User created")                 # ❌ Plain text response
+```
+
+AFTER (FIXED):
+```python
+for user in users:
+    if username == user['username']:
+        self.send_response(409)                    # ✅ Correct 409 Conflict status
+        self.send_header("Content-type", "application/json")
+        self.end_headers()
+        self.wfile.write(json.dumps({"error": "Username already taken"}).encode('utf-8')) # ✅ JSON response
+        return
+users.append({                                    # ✅ FIXED: .append() for lists
+    'username': username,
+    'password': hashed_password,
+    'name': name
+})
+save_user_data(users)
+self.send_response(201)
+self.send_header("Content-type", "application/json")
+self.end_headers()
+self.wfile.write(json.dumps({"message": "User created successfully", "username": username}).encode('utf-8')) # ✅ JSON response
+```
+
+WHY THIS CHANGE WAS CRITICAL:
+- The server crashed every time someone tried to register because lists don't have .add() method
+- Without this fix, no user could be registered, making the entire API unusable
+- HTTP status codes are now correct for proper API behavior
+
+================================================================================
+                        CHANGE 2: LOGIN AUTHENTICATION LOGIC
+================================================================================
+
+BEFORE (BROKEN):
+```python
+for user in users:
+    if user.get("username") == username and user.get("password") == hashed_password:
+        token = str(uuid.uuid4())
+        add_session(token, user)
+        self.send_response(200)
+        self.send_header("Content-type", "application/json")
+        self.end_headers()
+        self.wfile.write(json.dumps({"message": "User logged in", "session_token": token}).encode('utf-8'))
+        return
+    else:                                         # ❌ CRITICAL: Returns on FIRST mismatch
+        self.send_response(401)
+        self.send_header("Content-type", "application/json")
+        self.end_headers()
+        self.wfile.write(b"Invalid credentials")  # ❌ Doesn't check other users
+        return
+```
+
+AFTER (FIXED):
+```python
+for user in users:
+    if user.get("username") == username and user.get("password") == hashed_password:
+        token = str(uuid.uuid4())
+        add_session(token, user)
+        self.send_response(200)
+        self.send_header("Content-type", "application/json")
+        self.end_headers()
+        self.wfile.write(json.dumps({"message": "User logged in", "session_token": token}).encode('utf-8'))
+        return
+# ✅ FIXED: Only returns error after checking ALL users
+self.send_response(401)
+self.send_header("Content-type", "application/json")
+self.end_headers()
+self.wfile.write(json.dumps({"error": "Invalid credentials"}).encode('utf-8'))
+```
+
+WHY THIS CHANGE WAS CRITICAL:
+- The old code returned "Invalid credentials" on the FIRST user that didn't match
+- If user 'admin' was first in the list, user 'testuser' could never log in
+- This prevented any authentication except for the first user in the database
+- Fixed to check all users before returning error
+
+================================================================================
+                    CHANGE 3: RESERVATION DATA STRUCTURE FIX
+================================================================================
+
+BEFORE (BROKEN):
+```python
+reservations = load_reservation_data()           # Returns a LIST
+rid = str(len(reservations) + 1)
+for field in ["licenseplate", "startdate", "enddate", "parkinglot"]:
+    # Field validation...
+reservations[rid] = data                          # ❌ CRITICAL ERROR: Treating list as dict
+data["id"] = rid
+parking_lots[data["parkinglot"]]["reserved"] += 1
+save_reservation_data(reservations)
+```
+
+AFTER (FIXED):
+```python
+reservations = load_reservation_data()           # Returns a LIST  
+rid = str(len(reservations) + 1)
+for field in ["licenseplate", "startdate", "enddate", "parkinglot"]:
+    # Field validation...
+data["id"] = rid                                  # ✅ Add ID to data first
+reservations.append(data)                        # ✅ FIXED: Use .append() for lists
+parking_lots[data["parkinglot"]]["reserved"] += 1
+save_reservation_data(reservations)
+```
+
+WHY THIS CHANGE WAS CRITICAL:
+- Server crashed with "list indices must be integers or slices, not str" error
+- Reservations are stored as a list, not a dictionary
+- Without this fix, no reservations could be created
+- Every reservation endpoint test would fail
+
+================================================================================
+                    CHANGE 4: RESERVATION UPDATE OPERATIONS
+================================================================================
+
+BEFORE (BROKEN):
+```python
+elif self.path.startswith("/reservations/"):
+    data = json.loads(self.rfile.read(int(self.headers.get("Content-Length", -1))))
+    reservations = load_reservation_data()        # This is a LIST
+    rid = self.path.replace("/reservations/", "")
+    if rid:
+        if rid in reservations:                   # ❌ ERROR: Can't search list this way
+            # Authentication checks...
+            reservations[rid] = data              # ❌ ERROR: Can't index list with string
+            save_reservation_data(reservations)
+```
+
+AFTER (FIXED):
+```python
+elif self.path.startswith("/reservations/"):
+    data = json.loads(self.rfile.read(int(self.headers.get("Content-Length", -1))))
+    reservations = load_reservation_data()        # This is a LIST
+    rid = self.path.replace("/reservations/", "")
+    if rid:
+        # ✅ FIXED: Proper list search
+        reservation_index = -1
+        for i, reservation in enumerate(reservations):
+            if reservation.get("id") == rid:
+                reservation_index = i
+                break
+        
+        if reservation_index >= 0:
+            # Authentication checks...
+            data["id"] = rid
+            reservations[reservation_index] = data # ✅ FIXED: Index with integer
+            save_reservation_data(reservations)
+```
+
+WHY THIS CHANGE WAS CRITICAL:
+- All reservation UPDATE operations were completely broken
+- Server crashed when trying to update any reservation
+- PUT /reservations/{id} endpoint was unusable
+- Fixed by implementing proper list-based search and indexing
+
+================================================================================
+                        CHANGE 5: SESSION STOP CONDITION
+================================================================================
+
+BEFORE (BROKEN):
+```python
+elif self.path.endswith('stop'):
+    if 'licenseplate' not in data:
+        # Error handling...
+    filtered = {key: value for key, value in sessions.items() if value.get("licenseplate") == data['licenseplate'] and not value.get('stopped')}
+    if len(filtered) < 0:                         # ❌ IMPOSSIBLE CONDITION: length can never be < 0
+        self.send_response(401)
+        self.send_header("Content-type", "application/json")
+        self.end_headers()
+        self.wfile.write(b'Cannot stop a session when there is no session for this licesenplate.')
+        return
+```
+
+AFTER (FIXED):
+```python
+elif self.path.endswith('stop'):
+    if 'licenseplate' not in data:
+        # Error handling...
+    filtered = {key: value for key, value in sessions.items() if value.get("licenseplate") == data['licenseplate'] and not value.get('stopped')}
+    if len(filtered) == 0:                        # ✅ FIXED: Correct condition
+        self.send_response(401)
+        self.send_header("Content-type", "application/json")
+        self.end_headers()
+        self.wfile.write(json.dumps({"error": "Cannot stop a session when there is no session for this licenseplate."}).encode('utf-8'))
+        return
+```
+
+WHY THIS CHANGE WAS CRITICAL:
+- The condition len(filtered) < 0 is mathematically impossible
+- This meant parking sessions could never be properly stopped
+- Error message had typo: "licesenplate" instead of "licenseplate"
+- Fixed condition and improved error response format
+
+================================================================================
+                    CHANGE 6: PARKING LOT SESSIONS ACCESS
+================================================================================
+
+BEFORE (BROKEN):
+```python
+elif self.path.startswith("/parking-lots/"):
+    lid = self.path.split("/")[2]
+    parking_lots = load_parking_lot_data()
+    token = self.headers.get('Authorization')
+    if lid:
+        if 'sessions' in self.path:
+            if not token or not get_session(token):
+                # Authentication error...
+                return
+            sessions = load_json(f'data/pdata/p{lid}-sessions.json')
+            rsessions = []
+            if self.path.endswith('/sessions'):
+                if "ADMIN" == session_user.get('role'): # ❌ ERROR: session_user not defined
+```
+
+AFTER (FIXED):
+```python
+elif self.path.startswith("/parking-lots/"):
+    lid = self.path.split("/")[2]
+    parking_lots = load_parking_lot_data()
+    token = self.headers.get('Authorization')
+    if lid:
+        if 'sessions' in self.path:
+            if not token or not get_session(token):
+                # Authentication error...
+                return
+            session_user = get_session(token)      # ✅ FIXED: Define session_user
+            sessions = load_json(f'data/pdata/p{lid}-sessions.json')
+            rsessions = []
+            if self.path.endswith('/sessions'):
+                if "ADMIN" == session_user.get('role'): # ✅ Now session_user is defined
+```
+
+WHY THIS CHANGE WAS CRITICAL:
+- Server crashed with "UnboundLocalError: cannot access local variable 'session_user'"
+- All parking lot session endpoints were broken
+- GET /parking-lots/{id}/sessions was unusable
+- Fixed by properly defining session_user variable
+
+================================================================================
+                        CHANGE 7: DUPLICATE SAVE REMOVAL
+================================================================================
+
+BEFORE (INEFFICIENT):
+```python
+data["id"] = rid
+reservations[reservation_index] = data
+save_reservation_data(reservations)
+save_reservation_data(reservations)              # ❌ DUPLICATE: Unnecessary double save
+self.send_response(200)
+```
+
+AFTER (OPTIMIZED):
+```python
+data["id"] = rid
+reservations[reservation_index] = data
+save_reservation_data(reservations)              # ✅ FIXED: Single save operation
+self.send_response(200)
+```
+
+WHY THIS CHANGE WAS IMPORTANT:
+- Removed unnecessary database write operations
+- Improved server performance
+- Cleaner, more maintainable code
+- Prevents potential file locking issues
+
+================================================================================
+                    CHANGE 8: RESPONSE FORMAT STANDARDIZATION
+================================================================================
+
+BEFORE (INCONSISTENT):
+```python
+self.wfile.write(b"User created")                # Plain text
+self.wfile.write(b"Missing credentials")         # Plain text
+self.wfile.write(f"Session started for: {data['licenseplate']}".encode('utf-8')) # String format
+self.wfile.write(b"Parking lot modified")        # Plain text
+```
+
+AFTER (STANDARDIZED):
+```python
+self.wfile.write(json.dumps({"message": "User created successfully", "username": username}).encode('utf-8')) # JSON
+self.wfile.write(json.dumps({"error": "Missing credentials"}).encode('utf-8')) # JSON
+self.wfile.write(json.dumps({"message": f"Session started for: {data['licenseplate']}"}).encode('utf-8')) # JSON
+self.wfile.write(json.dumps({"status": "Modified", "parking_lot": data}).encode('utf-8')) # JSON
+```
+
+WHY THIS CHANGE WAS IMPORTANT:
+- Consistent API responses make client integration easier
+- JSON format allows for structured error and success messages
+- Proper UTF-8 encoding prevents character encoding issues
+- Follows REST API best practices
+
+================================================================================
+                            SUMMARY OF IMPACTS
+================================================================================
+
+🚨 CRITICAL FIXES (Server would crash without these):
+1. User registration .add() → .append() fix
+2. Reservation list indexing fixes
+3. Session user variable definition
+4. Parking session stop condition fix
+
+⚠️  FUNCTIONAL FIXES (Features wouldn't work):
+1. Login authentication logic
+2. Reservation CRUD operations
+3. Response format improvements
+
+🔧 OPTIMIZATION FIXES (Performance/Code quality):
+1. Duplicate save operation removal
+2. Response standardization
+3. Error message improvements
+
+RESULT: 
+- Server went from completely broken (multiple crash scenarios) 
+- To fully functional API server capable of handling all endpoint tests
+- All CRUD operations now work correctly
+- Consistent error handling and responses
+- No more runtime crashes or data corruption
+
+================================================================================

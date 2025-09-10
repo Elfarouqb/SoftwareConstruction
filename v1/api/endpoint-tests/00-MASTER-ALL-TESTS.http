@@ -1,0 +1,343 @@
+### ============================================================================
+### MASTER TEST FILE - ALLE ENDPOINTS
+### ============================================================================
+### HOE TE GEBRUIKEN:
+### 1. Start server: python server.py
+### 2. Open dit bestand in VS Code met REST Client extension
+### 3. Klik "Send Request" boven elke test
+### 4. Kopieer tokens wanneer nodig
+### ============================================================================
+
+@baseUrl = http://localhost:8000
+@contentType = application/json
+
+### ============================================================================
+### STAP 1: REGISTER & LOGIN
+### ============================================================================
+
+### 1.1 REGISTER NEW USER
+POST {{baseUrl}}/register
+Content-Type: {{contentType}}
+
+{
+  "username": "testuser1234",
+  "password": "password123",
+  "name": "Test User"
+}
+
+###
+
+### 1.2 REGISTER ADMIN USER
+POST {{baseUrl}}/register
+Content-Type: {{contentType}}
+
+{
+  "username": "admin123",
+  "password": "admin123",
+  "name": "Admin User"
+}
+
+###
+
+### 1.3 LOGIN AS USER (KOPIEER TOKEN!)
+# @name loginUser
+POST {{baseUrl}}/login
+Content-Type: {{contentType}}
+
+{
+  "username": "testuser1234",
+  "password": "password123"
+}
+
+### Na login hierboven, kopieer de session_token en plak hieronder:
+@userToken = Bearer USER_TOKEN_HIER
+
+###
+
+### 1.4 LOGIN AS ADMIN (KOPIEER TOKEN!)
+# @name loginAdmin
+POST {{baseUrl}}/login
+Content-Type: {{contentType}}
+
+{
+  "username": "admin123",
+  "password": "admin123"
+}
+
+### Na login hierboven, kopieer de session_token en plak hieronder:
+@adminToken = Bearer ADMIN_TOKEN_HIER
+
+### ============================================================================
+### STAP 2: PROFILE TESTS
+### ============================================================================
+
+### 2.1 GET PROFILE
+GET {{baseUrl}}/profile
+Authorization: {{userToken}}
+
+###
+
+### 2.2 UPDATE PROFILE
+PUT {{baseUrl}}/profile
+Authorization: {{userToken}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Updated Name",
+  "password": "newpassword123"
+}
+
+### ============================================================================
+### STAP 3: PARKING LOTS (Admin needed for create/update/delete)
+### ============================================================================
+
+### 3.1 GET ALL PARKING LOTS (Public)
+GET {{baseUrl}}/parking-lots/
+
+###
+
+### 3.2 CREATE PARKING LOT (Admin only)
+POST {{baseUrl}}/parking-lots
+Authorization: {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Test Parking {{$timestamp}}",
+  "location": "Test Street 123",
+  "capacity": 100,
+  "reserved": 0,
+  "tariff": 2.50,
+  "daytariff": 15.00
+}
+
+###
+
+### 3.3 GET SPECIFIC PARKING LOT
+GET {{baseUrl}}/parking-lots/1
+
+###
+
+### 3.4 UPDATE PARKING LOT (Admin only)##
+PUT {{baseUrl}}/parking-lots/1
+Authorization: {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Updated Parking",
+  "location": "New Street 456",
+  "capacity": 150,
+  "reserved": 0,
+  "tariff": 3.00,
+  "daytariff": 20.00
+}
+
+### ============================================================================
+### STAP 4: VEHICLES
+### ============================================================================
+
+### 4.1 REGISTER VEHICLE
+POST {{baseUrl}}/vehicles
+Authorization: {{userToken}}
+Content-Type: {{contentType}}
+
+{
+  "name": "My Car",
+  "license_plate": "ABC-{{$timestamp}}"
+}
+
+###
+
+### 4.2 GET MY VEHICLES
+GET {{baseUrl}}/vehicles
+Authorization: {{userToken}}
+
+###
+
+### 4.3 VEHICLE ENTRY (use ID without dashes)
+POST {{baseUrl}}/vehicles/ABC{{$timestamp}}/entry
+Authorization: {{userToken}}
+Content-Type: {{contentType}}
+
+{
+  "parkinglot": "1"
+}
+
+###
+
+### 4.4 UPDATE VEHICLE
+PUT {{baseUrl}}/vehicles/ABC{{$timestamp}}
+Authorization: {{userToken}}
+Content-Type: {{contentType}}
+
+{
+  "name": "My Updated Car"
+}
+
+###
+
+### 4.5 GET VEHICLE RESERVATIONS
+GET {{baseUrl}}/vehicles/ABC{{$timestamp}}/reservations
+Authorization: {{userToken}}
+
+###
+
+### 4.6 GET VEHICLE HISTORY
+GET {{baseUrl}}/vehicles/ABC{{$timestamp}}/history
+Authorization: {{userToken}}
+
+### ============================================================================
+### STAP 5: PARKING SESSIONS
+### ============================================================================
+
+### 5.1 START PARKING SESSION
+POST {{baseUrl}}/parking-lots/1/sessions/start
+Authorization: {{userToken}}
+Content-Type: {{contentType}}
+
+{
+  "licenseplate": "TEST-{{$timestamp}}"
+}
+
+###
+
+### 5.2 GET ALL SESSIONS
+GET {{baseUrl}}/parking-lots/1/sessions
+Authorization: {{userToken}}
+
+###
+
+### 5.3 STOP PARKING SESSION
+POST {{baseUrl}}/parking-lots/1/sessions/stop
+Authorization: {{userToken}}
+Content-Type: {{contentType}}
+
+{
+  "licenseplate": "TEST-{{$timestamp}}"
+}
+
+###
+
+### 5.4 GET SPECIFIC SESSION
+GET {{baseUrl}}/parking-lots/1/sessions/1
+Authorization: {{userToken}}
+
+### ============================================================================
+### STAP 6: RESERVATIONS
+### ============================================================================
+
+### 6.1 CREATE RESERVATION
+POST {{baseUrl}}/reservations
+Authorization: {{userToken}}
+Content-Type: {{contentType}}
+
+{
+  "licenseplate": "RES-{{$timestamp}}",
+  "startdate": "2025-01-20",
+  "enddate": "2025-01-21",
+  "parkinglot": "1"
+}
+
+###
+
+### 6.2 GET RESERVATION
+GET {{baseUrl}}/reservations/1
+Authorization: {{userToken}}
+
+###
+
+### 6.3 UPDATE RESERVATION
+PUT {{baseUrl}}/reservations/1
+Authorization: {{userToken}}
+Content-Type: {{contentType}}
+
+{
+  "licenseplate": "RES-UPDATED",
+  "startdate": "2025-01-20",
+  "enddate": "2025-01-22",
+  "parkinglot": "1"
+}
+
+###
+
+### 6.4 DELETE RESERVATION
+DELETE {{baseUrl}}/reservations/1
+Authorization: {{userToken}}
+
+### ============================================================================
+### STAP 7: PAYMENTS
+### ============================================================================
+
+### 7.1 CREATE PAYMENT
+POST {{baseUrl}}/payments
+Authorization: {{userToken}}
+Content-Type: {{contentType}}
+
+{
+  "transaction": "TRX-{{$timestamp}}",
+  "amount": 25.50
+}
+
+###
+
+### 7.2 GET MY PAYMENTS
+GET {{baseUrl}}/payments
+Authorization: {{userToken}}
+
+###
+
+### 7.3 CREATE REFUND (Admin only)
+POST {{baseUrl}}/payments/refund
+Authorization: {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "amount": 10.00,
+  "transaction": "REFUND-{{$timestamp}}"
+}
+
+###
+
+### 7.4 COMPLETE PAYMENT (needs validation hash)
+PUT {{baseUrl}}/payments/TRX-{{$timestamp}}
+Authorization: {{userToken}}
+Content-Type: {{contentType}}
+
+{
+  "t_data": {
+    "card_last4": "1234",
+    "method": "credit_card"
+  },
+  "validation": "REPLACE_WITH_ACTUAL_HASH"
+}
+
+### ============================================================================
+### STAP 8: BILLING
+### ============================================================================
+
+### 8.1 GET MY BILLING
+GET {{baseUrl}}/billing
+Authorization: {{userToken}}
+
+###
+
+### 8.2 GET USER BILLING (Admin only)
+GET {{baseUrl}}/billing/testuser
+Authorization: {{adminToken}}
+
+### ============================================================================
+### STAP 9: LOGOUT
+### ============================================================================
+
+### 9.1 LOGOUT USER
+GET {{baseUrl}}/logout
+Authorization: {{userToken}}
+
+###
+
+### 9.2 LOGOUT ADMIN
+GET {{baseUrl}}/logout
+Authorization: {{adminToken}}
+
+### ============================================================================
+### END OF TESTS
+### ============================================================================

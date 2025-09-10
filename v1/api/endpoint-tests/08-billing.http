@@ -1,0 +1,137 @@
+### ====================================
+### BILLING ENDPOINTS TESTS
+### ====================================
+### Facturering en betalingsoverzichten
+
+@baseUrl = http://localhost:8000
+@contentType = application/json
+@userToken = PLAK_HIER_USER_TOKEN
+@adminToken = PLAK_HIER_ADMIN_TOKEN
+
+### ====================================
+### TEST 1: GET MY BILLING - User
+### Expected: 200 met billing array
+### Toont alle sessies met tarieven en betalingen
+### ====================================
+# @name getMyBilling
+GET {{baseUrl}}/billing
+Authorization: {{userToken}}
+
+### ====================================
+### TEST 2: GET MY BILLING - Zonder token
+### Expected: 401 "Unauthorized"
+### ====================================
+GET {{baseUrl}}/billing
+
+### ====================================
+### TEST 3: GET MY BILLING - Invalid token
+### Expected: 401 "Unauthorized"
+### ====================================
+GET {{baseUrl}}/billing
+Authorization: invalid_token_xyz123
+
+### ====================================
+### TEST 4: GET USER BILLING - Admin only
+### Expected: 200 met billing voor specifieke user
+### ====================================
+# @name getUserBilling
+GET {{baseUrl}}/billing/testuser
+Authorization: {{adminToken}}
+
+### ====================================
+### TEST 5: GET USER BILLING - Regular user
+### Expected: 403 "Access denied"
+### ====================================
+GET {{baseUrl}}/billing/anotheruser
+Authorization: {{userToken}}
+
+### ====================================
+### TEST 6: GET USER BILLING - Non-existent user
+### Expected: 200 met lege array (of 404)
+### Admin kan billing voor niet-bestaande user opvragen
+### ====================================
+GET {{baseUrl}}/billing/nonexistentuser999
+Authorization: {{adminToken}}
+
+### ====================================
+### TEST 7: GET USER BILLING - Zonder token
+### Expected: 401 "Unauthorized"
+### ====================================
+GET {{baseUrl}}/billing/testuser
+
+### ====================================
+### BILLING DATA STRUCTURE TEST
+### Test response format voor billing
+### ====================================
+### Expected response structure:
+### [
+###   {
+###     "session": {
+###       "licenseplate": "ABC-123",
+###       "started": "2025-01-09 10:00:00",
+###       "stopped": "2025-01-09 12:00:00",
+###       "hours": 2,
+###       "days": 0
+###     },
+###     "parking": {
+###       "name": "Central Parking",
+###       "location": "Main Street",
+###       "tariff": 2.50,
+###       "daytariff": 15.00
+###     },
+###     "amount": 5.00,
+###     "thash": "transaction_hash",
+###     "payed": 0.00,
+###     "balance": 5.00
+###   }
+### ]
+GET {{baseUrl}}/billing
+Authorization: {{userToken}}
+
+### ====================================
+### COMPLETE TEST SCENARIO
+### Create session, stop it, check billing
+### ====================================
+### Step 1: Start parking session
+POST {{baseUrl}}/parking-lots/1/sessions/start
+Authorization: {{userToken}}
+Content-Type: {{contentType}}
+
+{
+  "licenseplate": "BILL-TEST-{{$timestamp}}"
+}
+
+###
+
+### Step 2: Wait a moment, then stop session
+POST {{baseUrl}}/parking-lots/1/sessions/stop
+Authorization: {{userToken}}
+Content-Type: {{contentType}}
+
+{
+  "licenseplate": "BILL-TEST-{{$timestamp}}"
+}
+
+###
+
+### Step 3: Check billing (should show the session)
+GET {{baseUrl}}/billing
+Authorization: {{userToken}}
+
+###
+
+### Step 4: Create payment for the session
+POST {{baseUrl}}/payments
+Authorization: {{userToken}}
+Content-Type: {{contentType}}
+
+{
+  "transaction": "TRX-BILL-{{$timestamp}}",
+  "amount": 5.00
+}
+
+###
+
+### Step 5: Check billing again (balance should update)
+GET {{baseUrl}}/billing
+Authorization: {{userToken}}

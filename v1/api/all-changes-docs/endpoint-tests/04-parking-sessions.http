@@ -1,0 +1,184 @@
+### ====================================
+### PARKING SESSIONS ENDPOINTS TESTS
+### ====================================
+### Sessions voor parkeren starten/stoppen
+
+@baseUrl = http://localhost:8000
+@contentType = application/json
+@userToken = PLAK_HIER_USER_TOKEN
+@adminToken = PLAK_HIER_ADMIN_TOKEN
+@parkingLotId = 1
+
+### ====================================
+### TEST 1: START SESSION - Nieuwe sessie
+### Expected: 200 "Session started for: ABC-123"
+### ====================================
+# @name startSession
+POST {{baseUrl}}/parking-lots/{{parkingLotId}}/sessions/start
+Authorization: {{userToken}}
+Content-Type: {{contentType}}
+
+{
+  "licenseplate": "ABC-123"
+}
+
+### ====================================
+### TEST 2: START SESSION - Duplicate (al actief)
+### Expected: 401 "Cannot start session when another is active"
+### ====================================
+POST {{baseUrl}}/parking-lots/{{parkingLotId}}/sessions/start
+Authorization: {{userToken}}
+Content-Type: {{contentType}}
+
+{
+  "licenseplate": "ABC-123"
+}
+
+### ====================================
+### TEST 3: START SESSION - Andere nummerplaat
+### Expected: 200 "Session started for: XYZ-789"
+### ====================================
+POST {{baseUrl}}/parking-lots/{{parkingLotId}}/sessions/start
+Authorization: {{userToken}}
+Content-Type: {{contentType}}
+
+{
+  "licenseplate": "XYZ-789"
+}
+
+### ====================================
+### TEST 4: START SESSION - Missing licenseplate
+### Expected: 401 "Required field missing: licenseplate"
+### ====================================
+POST {{baseUrl}}/parking-lots/{{parkingLotId}}/sessions/start
+Authorization: {{userToken}}
+Content-Type: {{contentType}}
+
+{}
+
+### ====================================
+### TEST 5: START SESSION - Zonder token
+### Expected: 401 "Unauthorized"
+### ====================================
+POST {{baseUrl}}/parking-lots/{{parkingLotId}}/sessions/start
+Content-Type: {{contentType}}
+
+{
+  "licenseplate": "NO-AUTH-123"
+}
+
+### ====================================
+### TEST 6: STOP SESSION - Actieve sessie
+### Expected: 200 "Session stopped for: ABC-123"
+### ====================================
+# @name stopSession
+POST {{baseUrl}}/parking-lots/{{parkingLotId}}/sessions/stop
+Authorization: {{userToken}}
+Content-Type: {{contentType}}
+
+{
+  "licenseplate": "ABC-123"
+}
+
+### ====================================
+### TEST 7: STOP SESSION - Geen actieve sessie
+### Expected: 401 "Cannot stop session when no active session"
+### ====================================
+POST {{baseUrl}}/parking-lots/{{parkingLotId}}/sessions/stop
+Authorization: {{userToken}}
+Content-Type: {{contentType}}
+
+{
+  "licenseplate": "NOT-ACTIVE-999"
+}
+
+### ====================================
+### TEST 8: STOP SESSION - Missing licenseplate
+### Expected: 401 "Required field missing: licenseplate"
+### ====================================
+POST {{baseUrl}}/parking-lots/{{parkingLotId}}/sessions/stop
+Authorization: {{userToken}}
+Content-Type: {{contentType}}
+
+{}
+
+### ====================================
+### TEST 9: GET ALL SESSIONS - User
+### Expected: 200 met array van user's sessies
+### ====================================
+# @name getAllSessions
+GET {{baseUrl}}/parking-lots/{{parkingLotId}}/sessions
+Authorization: {{userToken}}
+
+### ====================================
+### TEST 10: GET ALL SESSIONS - Admin
+### Expected: 200 met ALLE sessies
+### ====================================
+GET {{baseUrl}}/parking-lots/{{parkingLotId}}/sessions
+Authorization: {{adminToken}}
+
+### ====================================
+### TEST 11: GET ALL SESSIONS - Zonder token
+### Expected: 401 "Unauthorized"
+### ====================================
+GET {{baseUrl}}/parking-lots/{{parkingLotId}}/sessions
+
+### ====================================
+### TEST 12: GET SPECIFIC SESSION - ID 1
+### Expected: 200 met sessie details OF 403 als niet owner
+### ====================================
+# @name getSession
+GET {{baseUrl}}/parking-lots/{{parkingLotId}}/sessions/1
+Authorization: {{userToken}}
+
+### ====================================
+### TEST 13: GET SPECIFIC SESSION - Admin
+### Expected: 200 (admin kan alles zien)
+### ====================================
+GET {{baseUrl}}/parking-lots/{{parkingLotId}}/sessions/1
+Authorization: {{adminToken}}
+
+### ====================================
+### TEST 14: DELETE SESSION - Admin only
+### Expected: 200 "Session deleted"
+### ====================================
+# @name deleteSession
+DELETE {{baseUrl}}/parking-lots/{{parkingLotId}}/sessions/2
+Authorization: {{adminToken}}
+
+### ====================================
+### TEST 15: DELETE SESSION - User (geen admin)
+### Expected: 403 "Access denied"
+### ====================================
+DELETE {{baseUrl}}/parking-lots/{{parkingLotId}}/sessions/1
+Authorization: {{userToken}}
+
+### ====================================
+### TEST 16: DELETE SESSION - Geen ID
+### Expected: 403 "Session ID required"
+### ====================================
+DELETE {{baseUrl}}/parking-lots/{{parkingLotId}}/sessions/
+Authorization: {{adminToken}}
+
+### ====================================
+### TEST 17: TEST FLOW - Start en stop direct
+### ====================================
+### Start nieuwe sessie
+POST {{baseUrl}}/parking-lots/{{parkingLotId}}/sessions/start
+Authorization: {{userToken}}
+Content-Type: {{contentType}}
+
+{
+  "licenseplate": "FLOW-TEST-{{$timestamp}}"
+}
+
+###
+
+### Stop dezelfde sessie
+POST {{baseUrl}}/parking-lots/{{parkingLotId}}/sessions/stop
+Authorization: {{userToken}}
+Content-Type: {{contentType}}
+
+{
+  "licenseplate": "FLOW-TEST-{{$timestamp}}"
+}
