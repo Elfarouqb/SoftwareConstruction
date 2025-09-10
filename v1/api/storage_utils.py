@@ -1,5 +1,6 @@
 import json
 import csv
+import os
 
 def load_json(filename):
     try:
@@ -59,10 +60,10 @@ def load_data(filename):
         return None
 
 def load_user_data():
-    return load_data('data/users.json')
+    return load_data(os.path.join(os.path.dirname(__file__), 'data/users.json'))
 
 def save_user_data(data):
-    save_data('data/users.json', data)
+    save_data(os.path.join(os.path.dirname(__file__), 'data/users.json'), data)
 
 def load_parking_lot_data():
     return load_data('data/parking-lots.json')
