@@ -54,16 +54,29 @@ class RequestHandler(BaseHTTPRequestHandler):
                 return
             hashed_password = hashlib.md5(password.encode()).hexdigest()
             users = load_json('data/users.json')
+            
+            # Ensure users is a list
+            if not isinstance(users, list):
+                users = []
+            
+            # Check if user exists and password matches
+            user_found = False
             for user in users:
-                if user.get("username") == username and user.get("password") == hashed_password:
-                    token = str(uuid.uuid4())
-                    add_session(token, user)
-                    self.send_response(200)
-                    self.send_header("Content-type", "application/json")
-                    self.end_headers()
-                    self.wfile.write(json.dumps({"message": "User logged in", "session_token": token}).encode('utf-8'))
-                    return
-            # If we get here, no user matched
+                if user.get("username") == username:
+                    user_found = True
+                    if user.get("password") == hashed_password:
+                        token = str(uuid.uuid4())
+                        add_session(token, user)
+                        self.send_response(200)
+                        self.send_header("Content-type", "application/json")
+                        self.end_headers()
+                        self.wfile.write(json.dumps({"message": "User logged in", "session_token": token}).encode('utf-8'))
+                        return
+                    else:
+                        # Wrong password
+                        break
+            
+            # User not found or wrong password
             self.send_response(401)
             self.send_header("Content-type", "application/json")
             self.end_headers()
@@ -686,7 +699,6 @@ class RequestHandler(BaseHTTPRequestHandler):
                         self.end_headers()
                         self.wfile.write(b"Unauthorized: Invalid or missing session token")
                         return
-                    session_user = get_session(token)  
                     sessions = load_json(f'data/pdata/p{lid}-sessions.json')
                     rsessions = []
                     if self.path.endswith('/sessions'):
