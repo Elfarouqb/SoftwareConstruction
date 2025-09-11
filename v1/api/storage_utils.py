@@ -66,7 +66,8 @@ def save_user_data(data):
     save_data(os.path.join(os.path.dirname(__file__), 'data/users.json'), data)
 
 def load_parking_lot_data():
-    return load_data('data/parking-lots.json')
+    data = load_data('data/parking-lots.json')
+    return data if isinstance(data, dict) else {}
 
 def save_parking_lot_data(data):
     save_data('data/parking-lots.json', data)
