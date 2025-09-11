@@ -77,8 +77,8 @@ POST {{baseUrl}}/register
 Content-Type: {{contentType}}
 
 {
-  "username": "admin",
-  "password": "admin123",
+  "username": "testuserw",
+  "password": "password123",
   "name": "System Administrator"
 }
 
@@ -90,14 +90,12 @@ POST {{baseUrl}}/login
 Content-Type: {{contentType}}
 
 {
-  "username": "testuser",
+  "username": "testuserw",
   "password": "password123"
 }
 
 ### Store the token from response
-@adminToken =  c148711c-c6a6-499c-ace1-b47144fe5003
-
-###
+@adminToken = 57684d97-d0d6-434f-a3dc-d53dfea8be91
 
 ### 3. GET /logout - Uitloggen
 GET {{baseUrl}}/logout
@@ -121,9 +119,7 @@ Content-Type: {{contentType}}
 Authorization: {{adminToken}}
 
 {
-  "name": "Updated Admin Name",
-  "email": "admin@parking.com",
-  "phone": "+31612345678"
+  "name": "Fernando"
 }
 
 ###
