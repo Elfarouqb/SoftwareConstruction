@@ -686,6 +686,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                         self.end_headers()
                         self.wfile.write(b"Unauthorized: Invalid or missing session token")
                         return
+                    session_user = get_session(token)  
                     sessions = load_json(f'data/pdata/p{lid}-sessions.json')
                     rsessions = []
                     if self.path.endswith('/sessions'):
