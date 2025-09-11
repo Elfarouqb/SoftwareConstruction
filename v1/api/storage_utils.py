@@ -11,7 +11,7 @@ def load_json(filename):
 
 def write_json(filename, data):
     with open(filename, 'w') as file:
-        json.dump(data, file, default=str)
+        json.dump(data, file, default=str, indent=2, ensure_ascii=False)
 
 def load_csv(filename):
     try:

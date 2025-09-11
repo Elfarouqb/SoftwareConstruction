@@ -3,7 +3,7 @@ import hashlib
 import uuid
 from datetime import datetime
 from http.server import HTTPServer, BaseHTTPRequestHandler
-from storage_utils import load_json, save_data, save_user_data, load_parking_lot_data, save_parking_lot_data, save_reservation_data, load_reservation_data, load_payment_data, save_payment_data
+from storage_utils import load_json, save_data, save_user_data, load_user_data, load_parking_lot_data, save_parking_lot_data, save_reservation_data, load_reservation_data, load_payment_data, save_payment_data
 from session_manager import add_session, remove_session, get_session
 import session_calculator as sc
 
@@ -16,7 +16,7 @@ class RequestHandler(BaseHTTPRequestHandler):
             name = data.get("name")
             role = data.get("role", "USER")
             hashed_password = hashlib.md5(password.encode()).hexdigest()
-            users = load_json('data/users.json')
+            users = load_user_data()  # Use the storage_utils function instead of load_json
             
             # Ensure users is a list, not a single object
             if not isinstance(users, list):
@@ -53,7 +53,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                 self.wfile.write(json.dumps({"error": "Missing credentials"}).encode('utf-8'))
                 return
             hashed_password = hashlib.md5(password.encode()).hexdigest()
-            users = load_json('data/users.json')
+            users = load_user_data()  # Use the storage_utils function instead of load_json
             
             # Ensure users is a list
             if not isinstance(users, list):
@@ -699,6 +699,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                         self.end_headers()
                         self.wfile.write(b"Unauthorized: Invalid or missing session token")
                         return
+                    session_user = get_session(token)
                     sessions = load_json(f'data/pdata/p{lid}-sessions.json')
                     rsessions = []
                     if self.path.endswith('/sessions'):
