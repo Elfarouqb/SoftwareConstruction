@@ -66,25 +66,25 @@ def save_user_data(data):
     save_data(os.path.join(os.path.dirname(__file__), 'data/users.json'), data)
 
 def load_parking_lot_data():
-    return load_data('data/parking-lots.json')
+    return load_data(os.path.join(os.path.dirname(__file__), 'data/parking-lots.json'))
 
 def save_parking_lot_data(data):
-    save_data('data/parking-lots.json', data)
+    save_data(os.path.join(os.path.dirname(__file__), 'data/parking-lots.json'), data)
 
 def load_reservation_data():
-    return load_data('data/reservations.json')
+    return load_data(os.path.join(os.path.dirname(__file__), 'data/reservations.json'))
 
 def save_reservation_data(data):
-    save_data('data/reservations.json', data)
+    save_data(os.path.join(os.path.dirname(__file__), 'data/reservations.json'), data)
 
 def load_payment_data():
-    return load_data('data/payments.json')
+    return load_data(os.path.join(os.path.dirname(__file__), 'data/payments.json'))
 
 def save_payment_data(data):
-    save_data('data/payments.json', data)
+    save_data(os.path.join(os.path.dirname(__file__), 'data/payments.json'), data)
 
 def load_discounts_data():
-    return load_data('data/discounts.csv')
+    return load_data(os.path.join(os.path.dirname(__file__), 'data/discounts.csv'))
 
 def save_discounts_data(data):
-    save_data('data/discounts.csv', data)
+    save_data(os.path.join(os.path.dirname(__file__), 'data/discounts.csv'), data)
